@@ -19,7 +19,6 @@ from pygame.locals import *
 # The grass background is even worse. But good to figure out how to tile
 
 pygame.init()
-
 # Declare control variables
 moveX = 0.0
 moveY = 0.0
@@ -38,7 +37,7 @@ window = pygame.display.set_mode((windowWidth, windowHeight))
 
 mouseX = 0
 mouseY = 0
-
+a = 0
 grass = pygame.image.load('grass.png')
 grass = pygame.transform.scale(grass, (grassScale, grassScale))
 playerStill = pygame.image.load('curatorPlayer.png')
@@ -50,14 +49,14 @@ bullet = pygame.image.load('bullet.png')
 bullet = pygame.transform.scale(bullet, (200, 200))
 
 swordup = pygame.image.load('swordup.png')
-swordup = pygame.transform.scale(playerStill, (playerScale, playerScale))
+swordup = pygame.transform.scale(swordup, (playerScale, playerScale))
 swordmove1 = pygame.image.load('swordmove1.png')
-swordmove1 = pygame.transform.scale(playerStill, (playerScale, playerScale))
+swordmove1 = pygame.transform.scale(swordmove1, (playerScale, playerScale))
 swordmove2 = pygame.image.load('swordmove2.png')
-swordmove2 = pygame.transform.scale(playerStill, (playerScale, playerScale))
+swordmove2 = pygame.transform.scale(swordmove2, (playerScale, playerScale))
 sworddown = pygame.image.load('sworddown.png')
-sworddown = pygame.transform.scale(playerStill, (playerScale, playerScale))
-
+sworddown = pygame.transform.scale(sworddown, (playerScale, playerScale))
+player = playerStill
 
 
 bullets = []
@@ -79,7 +78,7 @@ class Bullet:
     def moveBullet(self, dirX, dirY):
         self.x += dirX
         self.y += dirY
-        print self.x, self.y
+        #print self.x, self.y
 
 
 while True:
@@ -126,7 +125,23 @@ while True:
 #        lookLeft = False
     if keys[pygame.K_SPACE]:    # Swaps player image to gun aiming
         player = playerRifle
-    else:
+    if keys[pygame.K_7]:
+        a += 1
+        if a == 1:
+            player = swordup
+            pygame.time.wait(10)
+        if a == 2:
+            player = swordmove1
+            pygame.time.wait(10)
+        if a == 3:
+             player = swordmove2
+             pygame.time.wait(10)
+        if a == 4:
+            player = sworddown
+            pygame.time.wait(10)
+            a = 0
+
+    if keys[pygame.K_1]:
         player = playerStill
 
     pygame.mouse.get_pos()
