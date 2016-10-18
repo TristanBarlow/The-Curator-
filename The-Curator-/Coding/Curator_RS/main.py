@@ -45,7 +45,14 @@ playerStill = pygame.image.load('curatorPlayer.png')
 playerStill = pygame.transform.scale(playerStill, (playerScale, playerScale))
 playerRifle = pygame.image.load('curatorPlayerRifleNew.png')
 playerRifle = pygame.transform.scale(playerRifle, (playerScale, playerScale))
-
+swordup = pygame.image.load('swordup.png')
+swordup = pygame.transform.scale(playerStill, (playerScale, playerScale))
+swordmove1 = pygame.image.load('swordmove1.png')
+swordmove1 = pygame.transform.scale(playerStill, (playerScale, playerScale))
+swordmove2 = pygame.image.load('swordmove2.png')
+swordmove2 = pygame.transform.scale(playerStill, (playerScale, playerScale))
+sworddown = pygame.image.load('sworddown.png')
+sworddown = pygame.transform.scale(playerStill, (playerScale, playerScale))
 
 while True:
 
