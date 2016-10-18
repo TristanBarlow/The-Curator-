@@ -95,7 +95,7 @@ while True:
             #bulletDir = (pygame.math.Vector2.normalise(playerPosX, playerPosY))
 
 
-            bullets.append(Bullet(playerPosX, playerPosY, 1, 1))
+            bullets.append(Bullet(playerPosX, playerPosY, deltaX, deltaY))
             numberOfBullets += 1
 
 
