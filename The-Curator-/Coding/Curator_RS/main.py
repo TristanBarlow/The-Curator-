@@ -45,6 +45,10 @@ playerStill = pygame.image.load('curatorPlayer.png')
 playerStill = pygame.transform.scale(playerStill, (playerScale, playerScale))
 playerRifle = pygame.image.load('curatorPlayerRifleNew.png')
 playerRifle = pygame.transform.scale(playerRifle, (playerScale, playerScale))
+
+bullet = pygame.image.load('bullet.png')
+bullet = pygame.transform.scale(bullet, (200, 200))
+
 swordup = pygame.image.load('swordup.png')
 swordup = pygame.transform.scale(playerStill, (playerScale, playerScale))
 swordmove1 = pygame.image.load('swordmove1.png')
@@ -54,24 +58,60 @@ swordmove2 = pygame.transform.scale(playerStill, (playerScale, playerScale))
 sworddown = pygame.image.load('sworddown.png')
 sworddown = pygame.transform.scale(playerStill, (playerScale, playerScale))
 
+
+
+bullets = []
+numberOfBullets = 0
+
+
+bulletSpeed = 1000
+
+
+class Bullet:
+    'Bullet'
+    def __init__(self, x, y, dirXX, dirYY):
+        self.x = x
+        self.y = y
+        self.dirx = dirXX
+        self.diry = dirYY
+        self.image = bullet
+
+    def moveBullet(self, dirX, dirY):
+        self.x += dirX
+        self.y += dirY
+        print self.x, self.y
+
+
 while True:
+
+    for i in range(0, numberOfBullets):
+        bullets[i].moveBullet(bullets[i].dirx, bullets[i].diry)
 
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
         if event.type == pygame.MOUSEMOTION:
-            pygame.mouse.set_cursor()
+            pygame.mouse.set_cursor(*pygame.cursors.broken_x)
             (mouseX, mouseY) = pygame.mouse.get_pos()
             playerPosX = windowWidth / 2 + 46
             playerPosY = windowHeight / 2 + 43
             deltaX = mouseX - playerPosX
             deltaY = mouseY - playerPosY
-            print deltaX, deltaY
             if deltaX < 0:
                 lookLeft = True
             if deltaX > 0:
                 lookLeft = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            print('Fire')
+
+            #bulletDir = (pygame.math.Vector2.normalise(playerPosX, playerPosY))
+
+
+            bullets.append(Bullet(playerPosX - 100, playerPosY -100, 1, 1)) #deltaX, deltaY))
+            numberOfBullets += 1
+
+
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:
@@ -99,7 +139,10 @@ while True:
 # Used to face player image left and right
     player = pygame.transform.flip(player, lookLeft, False)
 
-# Displays player in middle of screen
-    window.blit(player, (windowWidth/2, windowHeight/2))
+    for i in range(0, numberOfBullets):
+        window.blit(bullet, (bullets[i].x + moveX, bullets[i].y + moveY))
+
+    # Displays player in middle of screen
+    window.blit(player, (windowWidth / 2, windowHeight / 2))
 
     pygame.display.update()
