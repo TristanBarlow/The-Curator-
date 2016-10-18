@@ -95,7 +95,7 @@ while True:
             #bulletDir = (pygame.math.Vector2.normalise(playerPosX, playerPosY))
 
 
-            bullets.append(Bullet(playerPosX, playerPosY, deltaX, deltaY))
+            bullets.append(Bullet(playerPosX - 100, playerPosY -100, 1, 1)) #deltaX, deltaY))
             numberOfBullets += 1
 
 
@@ -126,10 +126,10 @@ while True:
 # Used to face player image left and right
     player = pygame.transform.flip(player, lookLeft, False)
 
-# Displays player in middle of screen
-    window.blit(player, (windowWidth/2, windowHeight/2))
-
     for i in range(0, numberOfBullets):
         window.blit(bullet, (bullets[i].x + moveX, bullets[i].y + moveY))
+
+    # Displays player in middle of screen
+    window.blit(player, (windowWidth / 2, windowHeight / 2))
 
     pygame.display.update()
