@@ -17,9 +17,13 @@ from pygame.locals import *
 # I drew the pixel art guy about 1:00am after a long Thursday night at work so it's shit
 # Tweed suit guy is a cool look for a museum curator though. obv with assult rifle
 # The grass background is even worse. But good to figure out how to tile
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
 
 pygame.init()
-
 # Declare control variables
 moveX = 0.0
 moveY = 0.0
@@ -38,7 +42,7 @@ window = pygame.display.set_mode((windowWidth, windowHeight))
 
 mouseX = 0
 mouseY = 0
-
+a = 0
 grass = pygame.image.load('grass.png')
 grass = pygame.transform.scale(grass, (grassScale, grassScale))
 playerStill = pygame.image.load('curatorPlayer.png')
@@ -50,14 +54,13 @@ bullet = pygame.image.load('bullet.png')
 bullet = pygame.transform.scale(bullet, (200, 200))
 
 swordup = pygame.image.load('swordup.png')
-swordup = pygame.transform.scale(playerStill, (playerScale, playerScale))
+swordup = pygame.transform.scale(swordup, (playerScale, playerScale))
 swordmove1 = pygame.image.load('swordmove1.png')
-swordmove1 = pygame.transform.scale(playerStill, (playerScale, playerScale))
+swordmove1 = pygame.transform.scale(swordmove1, (playerScale, playerScale))
 swordmove2 = pygame.image.load('swordmove2.png')
-swordmove2 = pygame.transform.scale(playerStill, (playerScale, playerScale))
+swordmove2 = pygame.transform.scale(swordmove2, (playerScale, playerScale))
 sworddown = pygame.image.load('sworddown.png')
-sworddown = pygame.transform.scale(playerStill, (playerScale, playerScale))
-
+sworddown = pygame.transform.scale(sworddown, (playerScale, playerScale))
 
 
 bullets = []
@@ -79,11 +82,12 @@ class Bullet:
     def moveBullet(self, dirX, dirY):
         self.x += dirX
         self.y += dirY
-        print self.x, self.y
+        #print self.x, self.y
 
 
 while True:
 
+    player = playerStill
     for i in range(0, numberOfBullets):
         bullets[i].moveBullet(bullets[i].dirx, bullets[i].diry)
 
@@ -105,10 +109,10 @@ while True:
         if event.type == pygame.MOUSEBUTTONDOWN:
             print('Fire')
 
-            #bulletDir = (pygame.math.Vector2.normalise(playerPosX, playerPosY))
+            #bulletDir = (pygame.cmath.Vector2.normalise(playerPosX, playerPosY))
 
 
-            bullets.append(Bullet(playerPosX - 100, playerPosY -100, 1, 1)) #deltaX, deltaY))
+            bullets.append(Bullet(playerPosX - 100, playerPosY -110, 10, 0)) #deltaX, deltaY))
             numberOfBullets += 1
 
 
@@ -126,7 +130,23 @@ while True:
 #        lookLeft = False
     if keys[pygame.K_SPACE]:    # Swaps player image to gun aiming
         player = playerRifle
-    else:
+    if keys[pygame.K_7]:
+        a += 1
+        if a == 1:
+            player = swordup
+            pygame.time.wait(10)
+        if a == 2:
+            player = swordmove1
+            pygame.time.wait(10)
+        if a == 3:
+             player = swordmove2
+             pygame.time.wait(10)
+        if a == 4:
+            player = sworddown
+            pygame.time.wait(10)
+            a = 0
+
+    if keys[pygame.K_1]:
         player = playerStill
 
     pygame.mouse.get_pos()
@@ -137,6 +157,7 @@ while True:
             window.blit(grass, (x + moveX, y + moveY))
 
 # Used to face player image left and right
+
     player = pygame.transform.flip(player, lookLeft, False)
 
     for i in range(0, numberOfBullets):
