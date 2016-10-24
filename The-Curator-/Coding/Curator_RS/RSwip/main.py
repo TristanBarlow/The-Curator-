@@ -62,11 +62,14 @@ class Bullet:
         self.dirx = directionX
         self.diry = directionY
         self.image = bullet
-        self.rect = pygame.Rect(x, y, 200, 200)
+        self.rect = pygame.Rect(x, y, 50, 50)
 
     def moveBullet(self, dirX, dirY):
         self.x += dirX * bulletSpeed
         self.y += dirY * bulletSpeed
+
+    def updateCollider(self):
+        self.rect = pygame.Rect(self.x, self.y, 50, 50)
 
 
 class Enemy:
@@ -75,12 +78,16 @@ class Enemy:
         self.x = x
         self.y = y
         self.image = enemy
-        self.rect = pygame.Rect(x, y, 200, 200)
+        self.rect = pygame.Rect(x, y, 50, 50)
 
     def respawn(self):
         self.x = (random.randint(0, windowWidth) + random.randint(0, windowWidth) + random.randint(0, windowWidth)) / 3
         self.y = (random.randint(0, windowHeight) + random.randint(0, windowHeight) + random.randint(0, windowHeight)) / 3
         print('Kill')
+
+    def updateCollider(self):
+        self.rect = pygame.Rect(self.x, self.y, 50, 50)
+
 
 
 enemies = []
@@ -93,10 +100,13 @@ while True:
     for i in range(0, numberOfBullets):
         bullets[i].moveBullet(bullets[i].dirx, bullets[i].diry)
 
+        bullets[i].updateCollider()
+
         # Check if hit colliders
         if bullets[i].rect.colliderect(enemies[0].rect):
             print ('Hit')
             enemies[0].respawn()
+            enemies[0].updateCollider()
 
 
     # Check for bullets exiting range of window
