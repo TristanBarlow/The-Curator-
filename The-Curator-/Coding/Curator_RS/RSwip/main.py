@@ -18,7 +18,7 @@ mouseY = 0
 firing = False
 
 # for scaling assets to size
-grassScale = 100
+grassScale = 50
 playerScale = 100
 enemyScale = 100
 
@@ -50,7 +50,7 @@ enemy = pygame.transform.scale(enemy, (enemyScale, enemyScale))
 bullets = []
 numberOfBullets = 0
 
-bulletSpeed = 10
+bulletSpeed = 30
 
 print ('Bullets:')
 
@@ -187,12 +187,19 @@ while True:
 
     for i in range(0, numberOfBullets):
         window.blit(bullet, (bullets[i].x + moveX, bullets[i].y + moveY))
-        pygame.draw.rect(window, (0, 0, 0), (bullets[i].rect), 5)
+        #pygame.draw.rect(window, (0, 0, 0), (bullets[i].rect), 5)
 
 # Displays player in middle of screen
     window.blit(player, (windowWidth / 2, windowHeight / 2))
     window.blit(enemy, (enemies[0].x + moveX, enemies[0].y + moveY))
 
-    pygame.draw.rect(window, (0, 0, 0), (enemies[0].rect), 5)
+#    pygame.draw.rect(window, (0, 0, 0), (enemies[0].rect), 5)
 
     pygame.display.update()
+
+
+ml1 = xxxooxooox
+ml2 = xooooxxoox
+ml3 = xooooxxoox
+
+ml
