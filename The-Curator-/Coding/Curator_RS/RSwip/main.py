@@ -52,10 +52,26 @@ numberOfBullets = 0
 
 bulletSpeed = 30
 
-print ('Bullets:')
 
-class Bullet:
+class Player():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+
+class Camera():
+    def __init__(self, image, x, y):
+        self.x = x
+        self.y = y
+        self.image = image
+
+    def update(self, offset_x, offset_y):
+        window.blit(self.image, (self.x + offset_x, self.y + offset_y))
+
+
+class Bullet(Camera):
     'Bullet'
+
     def __init__(self, x, y, directionX, directionY):
         self.x = x - moveX
         self.y = y - moveY
@@ -72,7 +88,7 @@ class Bullet:
         self.rect = pygame.Rect(self.x, self.y, 50, 50)
 
 
-class Enemy:
+class Enemy(Camera):
     'Dinosaur'
     def __init__(self, x, y):
         self.x = x
@@ -197,9 +213,3 @@ while True:
 
     pygame.display.update()
 
-
-ml1 = xxxooxooox
-ml2 = xooooxxoox
-ml3 = xooooxxoox
-
-ml
