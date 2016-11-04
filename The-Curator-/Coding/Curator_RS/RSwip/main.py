@@ -72,12 +72,13 @@ class Camera():
 class Bullet(Camera):
     'Bullet'
 
-    def __init__(self, x, y, directionX, directionY):
+    def __init__(self, bullet_pos_x, bullet_pos_y, direction_x, direction_y):
+        Camera.__init__(self, bullet, x, y)
         self.x = x - moveX
         self.y = y - moveY
-        self.dirx = directionX
-        self.diry = directionY
-        self.image = bullet
+        self.dirx = direction_x
+        self.diry = direction_y
+#        self.image = bullet
         self.rect = pygame.Rect(x, y, 200, 200)
 
     def moveBullet(self, dirX, dirY):
