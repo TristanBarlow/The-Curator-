@@ -15,9 +15,14 @@ run_thr = pygame.image.load('rap_side_run3.png')
 run_fou = pygame.image.load('rap_side_run4.png')
 run_fiv = pygame.image.load('rap_side_run5.png')
 
+raptor_images = []
+
+#for x in xrange (1, 6):
+#    raptor_images.append(pygame.image.load('rap_side_run%i.png'%x))
+
 raptor_images = [standing, run_one, run_two, run_thr, run_fou, run_fiv]
 
-animation_frame_step = 2
+animation_frame_step = 4
 
 
 class Raptor():
@@ -57,7 +62,7 @@ while True:
             pygame.quit()
             sys.exit()
 
-        raptor_demo.running()
+    raptor_demo.running()
 
         #if keys[pygame.K_SPACE]:
         #    raptor.running()
