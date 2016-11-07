@@ -55,19 +55,19 @@ raptor_demo = Raptor(raptor_images)
 
 while True:
 
-    keys = pygame.key.get_pressed()
-
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
 
-    raptor_demo.running()
+    #raptor_demo.running()
 
-        #if keys[pygame.K_SPACE]:
-        #    raptor.running()
-        #else:
-        #    raptor.standing()
+    keys = pygame.key.get_pressed()
+
+    if keys[pygame.K_SPACE]:
+        raptor_demo.running()
+    else:
+        raptor_demo.standing()
 
     window.fill((255, 255, 255))
     window.blit(raptor_demo.image, (0, 0))
