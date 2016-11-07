@@ -15,7 +15,7 @@ run_thr = pygame.image.load('rap_side_run3.png')
 run_fou = pygame.image.load('rap_side_run4.png')
 run_fiv = pygame.image.load('rap_side_run5.png')
 
-raptor_images = []
+#raptor_images = []
 
 #for x in xrange (1, 6):
 #    raptor_images.append(pygame.image.load('rap_side_run%i.png'%x))
