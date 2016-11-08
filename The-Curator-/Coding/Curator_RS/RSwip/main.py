@@ -18,7 +18,7 @@ mouseY = 0
 firing = False
 
 # for scaling assets to size
-grassScale = 100
+grassScale = 50
 playerScale = 100
 enemyScale = 100
 
@@ -50,20 +50,55 @@ enemy = pygame.transform.scale(enemy, (enemyScale, enemyScale))
 bullets = []
 numberOfBullets = 0
 
-bulletSpeed = 10
+bulletSpeed = 30
 
-print ('Bullets:')
 
+<<<<<<< .mine
 
 
 class Bullet:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=======
+class Player():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+
+class Camera():
+    def __init__(self, image, x, y):
+        self.x = x
+        self.y = y
+        self.image = image
+
+    def update(self, offset_x, offset_y):
+        window.blit(self.image, (self.x + offset_x, self.y + offset_y))
+
+
+class Bullet(Camera):
+>>>>>>> .theirs
     'Bullet'
-    def __init__(self, x, y, directionX, directionY):
+
+    def __init__(self, bullet_pos_x, bullet_pos_y, direction_x, direction_y):
+        Camera.__init__(self, bullet, x, y)
         self.x = x - moveX
         self.y = y - moveY
-        self.dirx = directionX
-        self.diry = directionY
-        self.image = bullet
+        self.dirx = direction_x
+        self.diry = direction_y
+#        self.image = bullet
         self.rect = pygame.Rect(x, y, 200, 200)
 
     def moveBullet(self, dirX, dirY):
@@ -74,7 +109,7 @@ class Bullet:
         self.rect = pygame.Rect(self.x, self.y, 50, 50)
 
 
-class Enemy:
+class Enemy(Camera):
     'Dinosaur'
     def __init__(self, x, y):
         self.x = x
@@ -189,12 +224,13 @@ while True:
 
     for i in range(0, numberOfBullets):
         window.blit(bullet, (bullets[i].x + moveX, bullets[i].y + moveY))
-        pygame.draw.rect(window, (0, 0, 0), (bullets[i].rect), 5)
+        #pygame.draw.rect(window, (0, 0, 0), (bullets[i].rect), 5)
 
 # Displays player in middle of screen
     window.blit(player, (windowWidth / 2, windowHeight / 2))
     window.blit(enemy, (enemies[0].x + moveX, enemies[0].y + moveY))
 
-    pygame.draw.rect(window, (0, 0, 0), (enemies[0].rect), 5)
+#    pygame.draw.rect(window, (0, 0, 0), (enemies[0].rect), 5)
 
     pygame.display.update()
+
