@@ -32,8 +32,8 @@ playerStill = pygame.transform.scale(playerStill, (playerScale, playerScale))
 playerRifle = pygame.image.load('curatorPlayerRifleNew.png')
 playerRifle = pygame.transform.scale(playerRifle, (playerScale, playerScale))
 
-bullet = pygame.image.load('bullet.png')
-bullet = pygame.transform.scale(bullet, (200, 200))
+bullet = pygame.image.load('bullet2.png')
+bullet = pygame.transform.scale(bullet, (20, 20))
 
 swordup = pygame.image.load('swordup.png')
 swordup = pygame.transform.scale(swordup, (playerScale, playerScale))
@@ -54,6 +54,8 @@ bulletSpeed = 10
 
 print ('Bullets:')
 
+
+
 class Bullet:
     'Bullet'
     def __init__(self, x, y, directionX, directionY):
@@ -68,6 +70,9 @@ class Bullet:
         self.x += dirX * bulletSpeed
         self.y += dirY * bulletSpeed
 
+    def updateCollider(self):
+        self.rect = pygame.Rect(self.x, self.y, 50, 50)
+
 
 class Enemy:
     'Dinosaur'
@@ -75,16 +80,22 @@ class Enemy:
         self.x = x
         self.y = y
         self.image = enemy
-        self.rect = pygame.Rect(x, y, 200, 200)
+        self.rect = pygame.Rect(x, y, 50, 50)
 
     def respawn(self):
         self.x = (random.randint(0, windowWidth) + random.randint(0, windowWidth) + random.randint(0, windowWidth)) / 3
         self.y = (random.randint(0, windowHeight) + random.randint(0, windowHeight) + random.randint(0, windowHeight)) / 3
         print('Kill')
 
+    def updateCollider(self):
+        self.rect = pygame.Rect(self.x, self.y, enemyScale, enemyScale)
+        pygame.draw.rect(window, (0,0,0), self.rect, 5)
+
+
 
 enemies = []
 enemies.append(Enemy(random.randint(0, windowWidth), random.randint(0, windowWidth)))
+enemies[0].updateCollider()
 
 
 while True:
@@ -93,10 +104,13 @@ while True:
     for i in range(0, numberOfBullets):
         bullets[i].moveBullet(bullets[i].dirx, bullets[i].diry)
 
+        bullets[i].updateCollider()
+
         # Check if hit colliders
         if bullets[i].rect.colliderect(enemies[0].rect):
             print ('Hit')
             enemies[0].respawn()
+            enemies[0].updateCollider()
 
 
     # Check for bullets exiting range of window
@@ -175,9 +189,12 @@ while True:
 
     for i in range(0, numberOfBullets):
         window.blit(bullet, (bullets[i].x + moveX, bullets[i].y + moveY))
+        pygame.draw.rect(window, (0, 0, 0), (bullets[i].rect), 5)
 
 # Displays player in middle of screen
     window.blit(player, (windowWidth / 2, windowHeight / 2))
     window.blit(enemy, (enemies[0].x + moveX, enemies[0].y + moveY))
+
+    pygame.draw.rect(window, (0, 0, 0), (enemies[0].rect), 5)
 
     pygame.display.update()
