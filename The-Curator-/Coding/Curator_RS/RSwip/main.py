@@ -53,6 +53,25 @@ numberOfBullets = 0
 bulletSpeed = 5s
 
 
+<<<<<<< .mine
+
+
+class Bullet:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=======
 class Player():
     def __init__(self, x, y):
         self.x = x
@@ -70,6 +89,7 @@ class Camera():
 
 
 class Bullet(Camera):
+>>>>>>> .theirs
     'Bullet'
 
     def __init__(self, bullet_pos_x, bullet_pos_y, direction_x, direction_y):
