@@ -50,28 +50,7 @@ enemy = pygame.transform.scale(enemy, (enemyScale, enemyScale))
 bullets = []
 numberOfBullets = 0
 
-bulletSpeed = 5s
-
-
-<<<<<<< .mine
-
-
-class Bullet:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-=======
+bulletSpeed = 5
 class Player():
     def __init__(self, x, y):
         self.x = x
@@ -84,12 +63,11 @@ class Camera():
         self.y = y
         self.image = image
 
-    def update(self, offset_x, offset_y):s
+    def update(self, offset_x, offset_y):
         window.blit(self.image, (self.x + offset_x, self.y + offset_y))
 
 
 class Bullet(Camera):
->>>>>>> .theirs
     'Bullet'
 
     def __init__(self, bullet_pos_x, bullet_pos_y, direction_x, direction_y):
