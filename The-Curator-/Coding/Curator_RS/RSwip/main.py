@@ -50,7 +50,7 @@ enemy = pygame.transform.scale(enemy, (enemyScale, enemyScale))
 bullets = []
 numberOfBullets = 0
 
-bulletSpeed = 30
+bulletSpeed = 5s
 
 
 class Player():
@@ -65,7 +65,7 @@ class Camera():
         self.y = y
         self.image = image
 
-    def update(self, offset_x, offset_y):
+    def update(self, offset_x, offset_y):s
         window.blit(self.image, (self.x + offset_x, self.y + offset_y))
 
 
