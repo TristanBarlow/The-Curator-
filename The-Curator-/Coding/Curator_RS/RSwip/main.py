@@ -3,9 +3,15 @@ from pygame.locals import *
 
 pygame.init()
 
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+
 # Window dimensions
-windowWidth = 1000
-windowHeight = 1000
+windowWidth = 1200
+windowHeight = 800
 
 # Declare control variables
 moveX = 0.0
@@ -51,10 +57,17 @@ bullets = []
 numberOfBullets = 0
 
 bulletSpeed = 5
-class Player():
+
+class Player:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+        self.image = playerStill
+        self.health = 100
+
+    def health_bar(self):
+        pygame.draw.rect(window,RED,(windowWidth/2, windowHeight/2, self.health/2, 5),)
+        pygame.draw.rect(window,BLACK,(windowWidth/2, windowHeight/2, self.health/2, 5), 1)
 
 
 class Camera():
@@ -72,16 +85,16 @@ class Bullet(Camera):
 
     def __init__(self, bullet_pos_x, bullet_pos_y, direction_x, direction_y):
         Camera.__init__(self, bullet, x, y)
-        self.x = x - moveX
-        self.y = y - moveY
-        self.dirx = direction_x
-        self.diry = direction_y
+        self.x = bullet_pos_x - moveX
+        self.y = bullet_pos_y - moveY
+        self.dir_x = direction_x
+        self.dir_y = direction_y
 #        self.image = bullet
         self.rect = pygame.Rect(x, y, 200, 200)
 
-    def moveBullet(self, dirX, dirY):
-        self.x += dirX * bulletSpeed
-        self.y += dirY * bulletSpeed
+    def moveBullet(self, dir_x, dir_y):
+        self.x += dir_x * bulletSpeed
+        self.y += dir_y * bulletSpeed
 
     def updateCollider(self):
         self.rect = pygame.Rect(self.x, self.y, 50, 50)
@@ -94,6 +107,8 @@ class Enemy(Camera):
         self.y = y
         self.image = enemy
         self.rect = pygame.Rect(x, y, 50, 50)
+        self.health = 100
+
 
     def respawn(self):
         self.x = (random.randint(0, windowWidth) + random.randint(0, windowWidth) + random.randint(0, windowWidth)) / 3
@@ -104,18 +119,20 @@ class Enemy(Camera):
         self.rect = pygame.Rect(self.x, self.y, enemyScale, enemyScale)
         pygame.draw.rect(window, (0,0,0), self.rect, 5)
 
-
-
+    def health_bar(self,  x, y):
+        pygame.draw.rect(window, (255, 0, 0), (x, y - 10, 50, 50))
 enemies = []
 enemies.append(Enemy(random.randint(0, windowWidth), random.randint(0, windowWidth)))
 enemies[0].updateCollider()
 
+player_one = Player(windowWidth, windowHeight)
+
 
 while True:
 
-    # Move all bullets by each individual bullets stored dirx, diry value
+    # Move all bullets by each individual bullets stored dir_x, dir_y value
     for i in range(0, numberOfBullets):
-        bullets[i].moveBullet(bullets[i].dirx, bullets[i].diry)
+        bullets[i].moveBullet(bullets[i].dir_x, bullets[i].dir_y)
 
         bullets[i].updateCollider()
 
@@ -187,7 +204,8 @@ while True:
         player = playerRifle
     else:
         player = playerStill
-
+    if keys[pygame.K_l]:
+        player_one.health += -10
     pygame.mouse.get_pos()
 
     window.fill((255, 255, 255))
@@ -199,7 +217,6 @@ while True:
 
 # Used to face player image left and right
     player = pygame.transform.flip(player, lookLeft, False)
-
     for i in range(0, numberOfBullets):
         window.blit(bullet, (bullets[i].x + moveX, bullets[i].y + moveY))
         #pygame.draw.rect(window, (0, 0, 0), (bullets[i].rect), 5)
@@ -207,8 +224,7 @@ while True:
 # Displays player in middle of screen
     window.blit(player, (windowWidth / 2, windowHeight / 2))
     window.blit(enemy, (enemies[0].x + moveX, enemies[0].y + moveY))
-
+    player_one.health_bar()
 #    pygame.draw.rect(window, (0, 0, 0), (enemies[0].rect), 5)
-
     pygame.display.update()
 
