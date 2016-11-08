@@ -190,6 +190,11 @@ while True:
         print numberOfBullets
 
     keys = pygame.key.get_pressed()
+
+    controls = {keys[pygame.k_w]: Controls.move_up}, {keys[pygame.k_s]: Controls.move_down}, {
+        keys[pygame.k_a]: Controls.move_left}, {keys[pygame.k_d]: Controls.move_right})
+
+
     if keys[pygame.K_w]:
         moveY += 5
     if keys[pygame.K_s]:
@@ -228,3 +233,25 @@ while True:
 #    pygame.draw.rect(window, (0, 0, 0), (enemies[0].rect), 5)
     pygame.display.update()
 
+
+
+
+
+class Controls(object):
+
+    def move_up(self):
+        moveY += 5
+
+    def move_down(self):
+        moveY += -5
+
+    def move_left(self):
+        moveX += 5
+
+    def move_right(self):
+        moveX += -5
+
+keys = pygame.key.get_pressed()
+controls = {w : Controls.move_up}, {keys[pygame.k_s]: Controls.move_down}, {keys[pygame.k_a]: Controls.move_left}, {keys[pygame.k_d]: Controls.move_right})
+
+if eventtype == keydown
