@@ -170,13 +170,15 @@ while True:
                 lookLeft = True
             if deltaX > 0:
                 lookLeft = False
+        ham = pygame.event.EventType.__dict__
+        print ham[event.key]
+
 
         # Makes full auto fire, single clicks per bullet was boring. 1 bullet per frame currently. Can slow down later
         if event.type == pygame.MOUSEBUTTONDOWN:
             firing = True
         if event.type == pygame.MOUSEBUTTONUP:
             firing = False
-
     if firing:
 
         # Normalises the delta mouse position so the bullets vector length == 1
@@ -190,8 +192,6 @@ while True:
         print numberOfBullets
 
     keys = pygame.key.get_pressed()
-
-
     if keys[pygame.K_w]:
         moveY += 5
     if keys[pygame.K_s]:
@@ -209,7 +209,6 @@ while True:
     if keys[pygame.K_l]:
         player_one.health += -10
     pygame.mouse.get_pos()
-
     window.fill((255, 255, 255))
 
 # Tiles the grass.png to fit the window, moveX and moveY are basically the player controls
