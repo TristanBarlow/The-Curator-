@@ -25,8 +25,8 @@ player_rifle_stand = pygame.transform.scale(pygame.image.load('player_side_stand
 player_rifle_walk1 = pygame.transform.scale(pygame.image.load('player_side_run_lff_rifle.png'), player_scale)
 player_rifle_walk2 = pygame.transform.scale(pygame.image.load('player_side_run_lfb_rifle.png'), player_scale)
 
-player_walking = [player_walking1, player_walking2]
-player_rifle_walking = [player_rifle_walk1, player_rifle_walk2]
+player_walking = [player_standing, player_walking1, player_walking2]
+player_rifle_walking = [player_rifle_stand, player_rifle_walk1, player_rifle_walk2]
 player_rifle_equip = [player_standing, player_jacket, player_rifle_stand]
 
 raptor_standing = pygame.transform.scale(pygame.image.load('rap_side_stand.png'), raptor_scale)
@@ -41,9 +41,9 @@ raptor_walk1 = raptor_run1
 raptor_walk2 = raptor_run3
 raptor_walk3 = raptor_run4
 
-raptor_walking = [raptor_walk1, raptor_walk2, raptor_walk3]
-raptor_running = [raptor_run1, raptor_run2, raptor_run3, raptor_run4, raptor_run5]
-raptor_attack = [raptor_standing, raptor_attack]
+raptor_walking = [raptor_standing, raptor_walk1, raptor_walk2, raptor_walk3]
+raptor_running = [raptor_standing, raptor_run1, raptor_run2, raptor_run3, raptor_run4, raptor_run5]
+raptor_attack = [raptor_standing, raptor_standing, raptor_attack]
 
 # for x in xrange (1, 6):
 #    raptor_images.append(pygame.image.load('rap_side_run%i.png'%x))
@@ -53,6 +53,7 @@ animation_frame_step = 10
 player_moving = False
 
 
+
 def animator(asset):
     """animator function, maybe swap to pyganim"""
     asset.keyframe += 1
@@ -60,7 +61,7 @@ def animator(asset):
         asset.keyframe = 0
         asset.animation_frame += 1
         if asset.animation_frame == asset.image_list.__len__():
-            asset.animation_frame = 0
+            asset.animation_frame = 1
     return asset.image_list[asset.animation_frame]
 
 
@@ -76,8 +77,8 @@ class Player:
 
     def standing(self):
         self.keyframe = 0
-        self.animation_frame = 0
-        self.image = player_standing
+        self.animation_frame = 1
+        self.image = self.image_list[0]
 
     def move_up(self):
         self.y += -movement_speed
@@ -91,6 +92,11 @@ class Player:
     def move_right(self):
         self.x += movement_speed
 
+    def equip_weapon(self):
+        player.image_list = player_rifle_equip
+        #player.image_list = player_rifle_walking
+
+
 
 class Raptor:
     """Raptor class"""
@@ -98,13 +104,13 @@ class Raptor:
         self.x = x
         self.y = y
         self.keyframe = 0
-        self.animation_frame = 0
+        self.animation_frame = 1
         self.image_list = image_list
         self.image = raptor_standing
 
     def standing(self):
         self.keyframe = 0
-        self.animation_frame = 0
+        self.animation_frame = 1
         self.image = raptor_standing
 
     def advance(self, player):
@@ -116,13 +122,14 @@ class Raptor:
 
 # initiate enemy list
 enemies = [Raptor(raptor_running, WINDOW_WIDTH, WINDOW_HEIGHT / 2)]
-player = Player(player_rifle_walking, 0, WINDOW_HEIGHT / 2)
+player = Player(player_walking, 0, WINDOW_HEIGHT / 2)
 
 # Controls dictionary
 controls = {'w' : player.move_up,
             's' : player.move_down,
             'a' : player.move_left,
-            'd' : player.move_right}
+            'd' : player.move_right,
+            'e' : player.equip_weapon}
 
 
 while True:
