@@ -50,31 +50,7 @@ raptor_attack = [raptor_standing, raptor_attack]
 
 movement_speed = 5
 animation_frame_step = 10
-
-
-class Controls:
-    """Controls"""
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def move_up(self):
-        self.y += movement_speed
-
-    def move_down(self):
-        self.y += -movement_speed
-
-    def move_left(self):
-        self.x += movement_speed
-
-    def move_right(self):
-        self.x += -movement_speed
-
-# Controls dictionary
-controls = {'w' : Controls.move_up,
-            's' : Controls.move_down,
-            'a' : Controls.move_left,
-            'd' : Controls.move_right}
+player_moving = False
 
 
 def animator(asset):
@@ -101,7 +77,19 @@ class Player:
     def standing(self):
         self.keyframe = 0
         self.animation_frame = 0
-        self.image = self.image_list[0]
+        self.image = player_standing
+
+    def move_up(self):
+        self.y += -movement_speed
+
+    def move_down(self):
+        self.y += movement_speed
+
+    def move_left(self):
+        self.x += -movement_speed
+
+    def move_right(self):
+        self.x += movement_speed
 
 
 class Raptor:
@@ -117,7 +105,7 @@ class Raptor:
     def standing(self):
         self.keyframe = 0
         self.animation_frame = 0
-        self.image = self.image_list[0]
+        self.image = raptor_standing
 
     def advance(self, player):
         difference_x = player.x - self.x
@@ -128,7 +116,13 @@ class Raptor:
 
 # initiate enemy list
 enemies = [Raptor(raptor_running, WINDOW_WIDTH, WINDOW_HEIGHT / 2)]
-player = Player(player_rifle_walking, 0, 0)
+player = Player(player_rifle_walking, 0, WINDOW_HEIGHT / 2)
+
+# Controls dictionary
+controls = {'w' : player.move_up,
+            's' : player.move_down,
+            'a' : player.move_left,
+            'd' : player.move_right}
 
 
 while True:
@@ -139,7 +133,7 @@ while True:
             sys.exit()
 
     # advance enemies
-    for i in xrange(0, enemies.__len__() - 1):
+    for i in xrange(0, enemies.__len__()):
         enemies[i].image = pygame.transform.flip(animator(enemies[i]), True, False)
         enemies[i].advance(player)
 
@@ -159,14 +153,19 @@ while True:
     if event.type == pygame.KEYDOWN:
         key_pressed = pygame.key.name(event.key)
         if key_pressed in controls:
+            player_moving = True
             controls[key_pressed]()
+    else:
+        player_moving = False
+        player.standing()
 
     window.fill((255, 255, 255))
 
-    for i in xrange(0, enemies.__len__() - 1):
+    for i in xrange(0, enemies.__len__()):
         window.blit(enemies[i].image, (enemies[i].x, enemies[i].y))
 
-    player.image = animator(player)
+    if player_moving:
+        player.image = animator(player)
     window.blit(player.image, (player.x, player.y))
 
     pygame.display.update()
