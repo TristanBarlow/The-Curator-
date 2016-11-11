@@ -52,6 +52,7 @@ raptor_attack = [raptor_standing, raptor_standing, raptor_attack]
 
 PLAYER_SPEED = 4
 RAPTOR_SPEED = 7
+RAPTOR_ATTACK_DISTANCE = 20
 ANIMATION_FRAME_STEP = 10
 
 
@@ -83,8 +84,8 @@ def animator(asset):
         if asset.keyframe == ANIMATION_FRAME_STEP:
             asset.keyframe = 0
             asset.animation_frame += 1
-            if asset.animation_frame == asset.image_list.__len__():
-                asset.animation_frame = 1
+        if asset.animation_frame >= asset.image_list.__len__():
+            asset.animation_frame = 1
     check_rifle_equipped(asset)
     return asset.image_list[asset.animation_frame]
 
@@ -153,7 +154,7 @@ class Raptor:
         difference_y = player.y - self.y
 
         # stop divide by zero error
-        if math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))) > 10:
+        if math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))) > RAPTOR_ATTACK_DISTANCE:
             normalised_x = difference_x / (math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))))
             normalised_y = difference_y / (math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))))
             self.x += normalised_x * RAPTOR_SPEED
