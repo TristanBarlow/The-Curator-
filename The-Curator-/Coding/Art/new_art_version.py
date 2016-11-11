@@ -46,6 +46,7 @@ player_rifle_holster = [player_rifle_stand, player_jacket, player_standing]
 raptor_walking = [raptor_standing, raptor_walk1, raptor_walk2, raptor_walk3]
 raptor_running = [raptor_standing, raptor_run1, raptor_run2, raptor_run3, raptor_run4, raptor_run5]
 raptor_attack = [raptor_standing, raptor_standing, raptor_attack]
+raptor_dead_list = [raptor_dead, raptor_dead]
 
 # for x in xrange (1, 6):
 #    raptor_images.append(pygame.image.load('rap_side_run%i.png'%x))
@@ -196,6 +197,9 @@ while True:
         if event.type == pygame.MOUSEMOTION:
             pygame.mouse.set_cursor(*pygame.cursors.broken_x)
             mouse_position = pygame.mouse.get_pos()
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            enemies[enemies.__len__() - 1].image_list = raptor_dead_list
 
     # either advance enemies or attacking animation continues
     for i in xrange(0, enemies.__len__()):
