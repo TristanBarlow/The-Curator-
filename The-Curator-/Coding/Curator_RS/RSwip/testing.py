@@ -8,7 +8,8 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
-
+tile_x = 0
+tile_y = 0
 # Window dimensions
 windowWidth = 1200
 windowHeight = 800
@@ -24,7 +25,7 @@ mouseY = 0
 firing = False
 
 # for scaling assets to size
-grassScale = 50
+tile_size = 64
 playerScale = 100
 enemyScale = 100
 
@@ -32,12 +33,15 @@ enemyScale = 100
 window = pygame.display.set_mode((windowWidth, windowHeight))
 
 grass = pygame.image.load('grass.png')
-grass = pygame.transform.scale(grass, (grassScale, grassScale))
+grass = pygame.transform.scale(grass, (tile_size, tile_size))
 playerStill = pygame.image.load('curatorPlayer.png')
 playerStill = pygame.transform.scale(playerStill, (playerScale, playerScale))
 playerRifle = pygame.image.load('curatorPlayerRifleNew.png')
 playerRifle = pygame.transform.scale(playerRifle, (playerScale, playerScale))
-
+wall = pygame.image.load('Tile_Wall.png')
+tile_wall = pygame.transform.scale(wall, (tile_size, tile_size))
+floor = pygame.image.load('Cave_floor.png')
+tile_floor = pygame.transform.scale(floor, (tile_size, tile_size))
 bullet = pygame.image.load('bullet2.png')
 bullet = pygame.transform.scale(bullet, (20, 20))
 
@@ -100,6 +104,13 @@ class Bullet(Camera):
         self.rect = pygame.Rect(self.x, self.y, 50, 50)
 
 
+def wall_blit():
+    window.blit(tile_wall, (tile_x + moveX, moveY + tile_y))
+    pygame.Rect((tile_x + moveX, moveY + tile_y),(tile_size, tile_size))
+def floor_blit():
+    window.blit(tile_floor, (tile_x + moveX, moveY + tile_y))
+
+
 class Enemy(Camera):
     'Dinosaur'
     def __init__(self, x, y):
@@ -108,7 +119,6 @@ class Enemy(Camera):
         self.image = enemy
         self.rect = pygame.Rect(x, y, 50, 50)
         self.health = 100
-
 
     def respawn(self):
         self.x = (random.randint(0, windowWidth) + random.randint(0, windowWidth) + random.randint(0, windowWidth)) / 3
@@ -124,12 +134,40 @@ class Enemy(Camera):
 enemies = []
 enemies.append(Enemy(random.randint(0, windowWidth), random.randint(0, windowWidth)))
 enemies[0].updateCollider()
+map = {0: floor_blit, 1: wall_blit, 2:0}
+map_array = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,
+             1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,
+             1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,
+             1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,
+             1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,
+             1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,
+             1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,
+             1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,
+             1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,
+             1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,1,2,
+             1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,2,
+             1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,2,
+             1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,2,
+             1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,
+             1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,
+             1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,
+             1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,
+             1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,
+             1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2]
 
 player_one = Player(windowWidth, windowHeight)
-
-
+map_draw = False
+window.fill(BLACK)
 while True:
-
+    window.fill(BLACK)
+    for tile in map_array:
+        if tile == 2:
+            tile_y += tile_size
+            tile_x = 0
+        else:
+            command = map[tile]
+            command()
+            tile_x += tile_size
     # Move all bullets by each individual bullets stored dir_x, dir_y value
     for i in range(0, numberOfBullets):
         bullets[i].moveBullet(bullets[i].dir_x, bullets[i].dir_y)
@@ -170,8 +208,6 @@ while True:
                 lookLeft = True
             if deltaX > 0:
                 lookLeft = False
-        ham = pygame.event.EventType.__dict__
-        print ham[event.key]
 
 
         # Makes full auto fire, single clicks per bullet was boring. 1 bullet per frame currently. Can slow down later
@@ -209,12 +245,6 @@ while True:
     if keys[pygame.K_l]:
         player_one.health += -10
     pygame.mouse.get_pos()
-    window.fill((255, 255, 255))
-
-# Tiles the grass.png to fit the window, moveX and moveY are basically the player controls
-    for x in range(0, windowWidth, grassScale):
-        for y in range(0, windowHeight, grassScale):
-            window.blit(grass, (x + moveX, y + moveY))
 
 # Used to face player image left and right
     player = pygame.transform.flip(player, lookLeft, False)
@@ -222,9 +252,12 @@ while True:
         window.blit(bullet, (bullets[i].x + moveX, bullets[i].y + moveY))
         #pygame.draw.rect(window, (0, 0, 0), (bullets[i].rect), 5)
 
+
 # Displays player in middle of screen
     window.blit(player, (windowWidth / 2, windowHeight / 2))
     window.blit(enemy, (enemies[0].x + moveX, enemies[0].y + moveY))
     player_one.health_bar()
+    tile_x = 0
+    tile_y = 0
 #    pygame.draw.rect(window, (0, 0, 0), (enemies[0].rect), 5)
     pygame.display.update()
