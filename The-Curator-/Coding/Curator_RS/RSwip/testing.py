@@ -161,17 +161,8 @@ map_array = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,
              1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2]
 
 player_one = Player(windowWidth, windowHeight)
-map_draw = False
 window.fill(BLACK)
 clock = pygame.time.Clock()
-for tile in map_array:
-    if tile == 2:
-        tile_y += tile_size
-        tile_x = 0
-    else:
-        command = map[tile]
-        command()
-        tile_x += tile_size
 while True:
     clock.tick(30)
     window.fill(BLACK)
