@@ -69,6 +69,8 @@ class Player:
         self.image = playerStill
         self.health = 100
 
+    #def collider(self):
+
     def health_bar(self):
         pygame.draw.rect(window,RED,(windowWidth/2, windowHeight/2, self.health/2, 5),)
         pygame.draw.rect(window,BLACK,(windowWidth/2, windowHeight/2, self.health/2, 5), 1)
@@ -104,13 +106,6 @@ class Bullet(Camera):
         self.rect = pygame.Rect(self.x, self.y, 50, 50)
 
 
-def wall_blit():
-    window.blit(tile_wall, (tile_x + moveX, moveY + tile_y))
-    pygame.Rect((tile_x + moveX, moveY + tile_y),(tile_size, tile_size))
-def floor_blit():
-    window.blit(tile_floor, (tile_x + moveX, moveY + tile_y))
-
-
 class Enemy(Camera):
     'Dinosaur'
     def __init__(self, x, y):
@@ -131,6 +126,16 @@ class Enemy(Camera):
 
     def health_bar(self,  x, y):
         pygame.draw.rect(window, (255, 0, 0), (x, y - 10, 50, 50))
+
+def wall_blit():
+    window.blit(tile_wall, (tile_x + moveX, moveY + tile_y))
+    pygame.Rect((tile_x + moveX, moveY + tile_y),(tile_size, tile_size))
+def floor_blit():
+    window.blit(tile_floor, (tile_x + moveX, moveY + tile_y))
+
+
+
+
 enemies = []
 enemies.append(Enemy(random.randint(0, windowWidth), random.randint(0, windowWidth)))
 enemies[0].updateCollider()
@@ -158,7 +163,17 @@ map_array = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,
 player_one = Player(windowWidth, windowHeight)
 map_draw = False
 window.fill(BLACK)
+clock = pygame.time.Clock()
+for tile in map_array:
+    if tile == 2:
+        tile_y += tile_size
+        tile_x = 0
+    else:
+        command = map[tile]
+        command()
+        tile_x += tile_size
 while True:
+    clock.tick(30)
     window.fill(BLACK)
     for tile in map_array:
         if tile == 2:
