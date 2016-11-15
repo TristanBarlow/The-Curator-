@@ -238,7 +238,9 @@ while True:
     player.image = animator(player)
     WINDOW.blit(face_player_towards_cursor(player.x, mouse_position[0]), (player.x - (PLAYER_SCALE[0] / 2), player.y))      # blit position is adjusted to centre of image instead of top left corner
 
+    print enemies.__len__()
+
     pygame.display.update()
 
     clock = pygame.time.Clock()
-    clock.tick(60)
+    clock.tick(120)
