@@ -63,9 +63,6 @@ RAPTOR_ATTACK_DISTANCE = 20
 ANIMATION_FRAME_STEP = 10
 
 
-
-
-
 def check_rifle_equipped(asset):
     """checks for end of rifle equip animation and sets the subsequent image_list"""
     if asset.image_list == player_rifle_equip and asset.animation_frame == 2:  # final animation frame
@@ -144,7 +141,6 @@ class Map:
     def floor_blit(self,tile_x, tile_y):
         WINDOW.blit(tile_floor, (tile_x + self.x, tile_y + self.y))
 
-
     def update_map(self):
         tile_y = 0
         tile_x = 0
@@ -157,6 +153,7 @@ class Map:
                 command = map_d[tile]
                 command(tile_x, tile_y)
                 tile_x += tile_size
+
 
 class Player:
     """player class"""
@@ -207,9 +204,9 @@ class Raptor:
         self.animation_frame = 1
         self.image = self.image_list[0]
 
-    def advance(self, player):
-        difference_x = player.x - self.x
-        difference_y = player.y - self.y
+    def advance(self, map):
+        difference_x = map.x - self.x
+        difference_y = map.y - self.y
 
         # stop divide by zero error
         if math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))) > RAPTOR_ATTACK_DISTANCE:
@@ -266,7 +263,7 @@ while True:
     # either advance enemies or attacking animation continues
     for i in xrange(0, enemies.__len__()):
         if not enemies[i].attacking:
-            enemies[i].advance(player)
+            enemies[i].advance(level_map)
         enemies[i].image = pygame.transform.flip(animator(enemies[i]), enemies[i].look_left, False)
 
     # check timer to spawn   need to put into a function. Actually this is just for demo
@@ -288,17 +285,14 @@ while True:
             player.moving = True
             controls[key_pressed]()
 
-
-
     # to allow rifle equip animation without interruption
     elif not player.equip_rifle_animation:
         player.moving = False
 
     # Display
 
-
     for i in xrange(0, enemies.__len__()):
-        WINDOW.blit(enemies[i].image, (enemies[i].x, enemies[i].y))
+        WINDOW.blit(enemies[i].image, (enemies[i].x + level_map.x, enemies[i].y + level_map.y))
 
     player.image = animator(player)
     WINDOW.blit(face_player_towards_cursor(player.x, mouse_position[0]), (player.x - (PLAYER_SCALE[0] / 2),
