@@ -1,7 +1,7 @@
 import pygame, sys, time, random, math
 from pygame.locals import *
 
-pygame.init()
+pygame.init
 
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 600
@@ -61,7 +61,7 @@ PLAYER_SPEED = 4
 RAPTOR_SPEED = 7
 RAPTOR_ATTACK_DISTANCE = 20
 ANIMATION_FRAME_STEP = 10
-
+wall_list = []
 
 def check_rifle_equipped(asset):
     """checks for end of rifle equip animation and sets the subsequent image_list"""
@@ -144,7 +144,7 @@ class Map:
 
     def wall_blit(self,tile_x,tile_y):
         WINDOW.blit(tile_wall, (tile_x + self.x, self.y + tile_y))
-        #pygame.Rect((tile_x + moveX, moveY + tile_y), (tile_size, tile_size))
+        wall_list.append((tile_x + self.x, self.y + tile_y))
 
     def floor_blit(self,tile_x, tile_y):
         WINDOW.blit(tile_floor, (tile_x + self.x, tile_y + self.y))
@@ -163,6 +163,7 @@ class Map:
                 command = map_d[tile]
                 command(tile_x, tile_y)
                 tile_x += tile_size
+
 
 
 class Player:
@@ -303,7 +304,6 @@ while True:
 
     for i in xrange(0, enemies.__len__()):
         WINDOW.blit(enemies[i].image, (enemies[i].x + level_map.x, enemies[i].y + level_map.y))
-
     player.image = animator(player)
     WINDOW.blit(face_player_towards_cursor(player.x, mouse_position[0]), (player.x - (PLAYER_SCALE[0] / 2),
                                                                           player.y))  # blit position is adjusted to centre of image instead of top left corner
