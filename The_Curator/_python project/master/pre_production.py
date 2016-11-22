@@ -63,6 +63,13 @@ RAPTOR_ATTACK_DISTANCE = 20
 ANIMATION_FRAME_STEP = 10
 wall_list = []
 
+bullets = []
+bullet_size = 10
+bullet_speed = 10
+bullet_colour = 0, 0, 0
+PLAYER_POSITION = (WINDOW_WIDTH/2, WINDOW_HEIGHT/2)
+
+
 def check_rifle_equipped(asset):
     """checks for end of rifle equip animation and sets the subsequent image_list"""
     if asset.image_list == player_rifle_equip and asset.animation_frame == 2:  # final animation frame
@@ -165,6 +172,29 @@ class Map:
                 tile_x += tile_size
 
 
+class Bullet:
+    """Bullet class"""
+    def __init__(self, player_position, bullet_direction):
+        self.x = player_position[0]
+        self.y = player_position[1]
+        self.direction = bullet_direction
+        self.rect = pygame.Rect(self.x, self.y, bullet_size, bullet_size)
+
+    def fire_bullet(self):
+        bullets.append(Bullet((WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), (normalised_x, normalised_y)))
+
+        enemies[enemies.__len__() - 1].image_list = raptor_dead_list
+
+    def move_bullet(self):
+        self.x += self.direction[0] * bullet_speed
+        self.y += self.direction[1] * bullet_speed
+
+    def update_collider(self):
+        self.rect = pygame.Rect(self.x, self.y, bullet_size, bullet_size)
+
+    def draw_bullet(self):
+        pygame.draw.rect(WINDOW, bullet_colour, self.rect)
+
 
 class Player:
     """player class"""
@@ -215,9 +245,9 @@ class Raptor:
         self.animation_frame = 1
         self.image = self.image_list[0]
 
-    def advance(self, map):
-        difference_x = map.x - self.x
-        difference_y = map.y - self.y
+    def advance(self, player_position, level_map):
+        difference_x = player_position[0] - self.x - level_map.x
+        difference_y = player_position[1] - self.y - level_map.y
 
         # stop divide by zero error
         if math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))) > RAPTOR_ATTACK_DISTANCE:
@@ -245,8 +275,6 @@ player = Player(player_walking, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
 # create map
 level_map = Map(0, 0)
 
-
-
 # Controls dictionary
 controls = {'w': level_map.move_up,
             's': level_map.move_down,
@@ -269,12 +297,18 @@ while True:
             mouse_position = pygame.mouse.get_pos()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            enemies[enemies.__len__() - 1].image_list = raptor_dead_list
+            mouse_delta_x = mouse_position[0] - PLAYER_POSITION[0]
+            mouse_delta_y = mouse_position[1] - PLAYER_POSITION[1]
+
+            normalised_x = mouse_delta_x / (math.sqrt((math.pow(mouse_delta_x, 2) + math.pow(mouse_delta_y, 2))))
+            normalised_y = mouse_delta_y / (math.sqrt((math.pow(mouse_delta_x, 2) + math.pow(mouse_delta_y, 2))))
+
+            bullets.append(Bullet(PLAYER_POSITION, (normalised_x, normalised_y)))
 
     # either advance enemies or attacking animation continues
     for i in xrange(0, enemies.__len__()):
         if not enemies[i].attacking:
-            enemies[i].advance(level_map)
+            enemies[i].advance((PLAYER_POSITION[0], PLAYER_POSITION[1]), level_map)
         enemies[i].image = pygame.transform.flip(animator(enemies[i]), enemies[i].look_left, False)
 
     # check timer to spawn   need to put into a function. Actually this is just for demo
@@ -305,9 +339,12 @@ while True:
     for i in xrange(0, enemies.__len__()):
         WINDOW.blit(enemies[i].image, (enemies[i].x + level_map.x, enemies[i].y + level_map.y))
     player.image = animator(player)
-    WINDOW.blit(face_player_towards_cursor(player.x, mouse_position[0]), (player.x - (PLAYER_SCALE[0] / 2),
-                                                                          player.y))  # blit position is adjusted to centre of image instead of top left corner
+    WINDOW.blit(face_player_towards_cursor(player.x, mouse_position[0]), (player.x - (PLAYER_SCALE[0] / 2), player.y))  # blit position is adjusted to centre of image instead of top left corner
 
+    for i in xrange(0, bullets.__len__()):
+        bullets[i].move_bullet()
+        bullets[i].update_collider()
+        bullets[i].draw_bullet()
 
     pygame.display.update()
 
