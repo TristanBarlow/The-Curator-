@@ -156,7 +156,6 @@ class Map:
         collision = pygame.Rect((tile_x + self.x, self.y + tile_y),(tile_size, tile_size) )
         wall_list.append(collision)
 
-
     def floor_blit(self,tile_x, tile_y):
         WINDOW.blit(tile_floor, (tile_x + self.x, tile_y + self.y))
 
@@ -198,11 +197,15 @@ class Bullet:
 
         enemies[enemies.__len__() - 1].image_list = raptor_dead_list
 
-    def move_bullet(self):
+    def move_bullet(self, i, enemies):
         self.x += self.direction[0] * bullet_speed
         self.y += self.direction[1] * bullet_speed
         if self.x < 0 or self.x > WINDOW_WIDTH or self.y < 0 or self.y > WINDOW_HEIGHT:
-            bullets.pop()
+            bullets.pop(i)
+        for j in xrange(0, enemies.__len__() - 1):
+            if self.rect.colliderect(enemies[j].rect):
+                enemies[j].image_list = raptor_dead_list
+                enemies[j].moving = False
 
     def update_collider(self):
         self.rect = pygame.Rect(self.x, self.y, bullet_size, bullet_size)
@@ -253,6 +256,7 @@ class Raptor:
         self.look_left = True
         self.moving = True
         self.attacking = False
+        self.rect = pygame.Rect(self.x, self.y, RAPTOR_SCALE[0], RAPTOR_SCALE[1])
 
     def standing(self):  # is this used? Maybe in sneak section
         self.keyframe = 0
@@ -261,6 +265,8 @@ class Raptor:
         self.image = self.image_list[0]
 
     def advance(self, player_position, level_map):
+        self.rect = pygame.Rect(self.x, self.y, RAPTOR_SCALE[0], RAPTOR_SCALE[1])
+
         difference_x = player_position[0] - self.x - level_map.x
         difference_y = player_position[1] - self.y - level_map.y
 
@@ -280,8 +286,9 @@ class Raptor:
         else:
             self.look_left = False
 
-    def patrol(self, start, finish, speed):
-        pass
+    def patrol(self, start_point, finish_point, travel_time):
+        patrol_path = finish_point - start_point
+
 
 
 # initiate enemy list
@@ -360,8 +367,8 @@ while True:
     player.image = animator(player)
     WINDOW.blit(face_player_towards_cursor(player.x, mouse_position[0]), (player.x - (PLAYER_SCALE[0] / 2), player.y))  # blit position is adjusted to centre of image instead of top left corner
 
-    for i in xrange(0, bullets.__len__()):
-        bullets[i].move_bullet()
+    for i in xrange(0, bullets.__len__()-1):
+        bullets[i].move_bullet(i, enemies)
         bullets[i].update_collider()
         bullets[i].draw_bullet()
 
