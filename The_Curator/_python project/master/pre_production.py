@@ -74,6 +74,7 @@ bullet_size = 10
 bullet_speed = 10
 bullet_colour = 0, 0, 0
 PLAYER_POSITION = (WINDOW_WIDTH/2, WINDOW_HEIGHT/2)
+centre_tile = ()
 
 
 def check_rifle_equipped(asset):
@@ -142,7 +143,6 @@ class Map:
                          9, 9, 9, 9, 9, 9, 9, 1, 0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 2,
                          9, 9, 9, 9, 9, 9, 9, 1, 0, 1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 2,]
 
-
     def move_up(self):
         self.y += PLAYER_SPEED
 
@@ -159,6 +159,8 @@ class Map:
         WINDOW.blit(tile_wall, (tile_x + self.x, self.y + tile_y))
         collision = pygame.Rect((tile_x + self.x, self.y + tile_y),(tile_size, tile_size) )
         wall_list.append(collision)
+
+
     def floor_blit(self,tile_x, tile_y):
         WINDOW.blit(tile_floor, (tile_x + self.x, tile_y + self.y))
 
@@ -176,9 +178,15 @@ class Map:
                 command = map_d[tile]
                 command(tile_x, tile_y)
                 tile_x += tile_size
+
+            """find centre tile (x, y)
+            for i in xrange(centre_tile[0]-1, centre_tile[0]+1):
+                for j in xrange(centre_tile[1]-1, centre_tile[1]+1):
+                    # check colliders player vs wall_tile(i, j)"""
+
             for i in wall_list:
                 if player_rect.colliderect(i):
-                  print'hello'
+                    pass
 
 
 class Bullet:
@@ -273,6 +281,9 @@ class Raptor:
             self.look_left = True
         else:
             self.look_left = False
+
+    def patrol(self, start, finish, speed):
+        pass
 
 
 # initiate enemy list
