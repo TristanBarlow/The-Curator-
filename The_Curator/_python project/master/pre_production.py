@@ -16,8 +16,15 @@ score = 0
 level = 0
 tile_size = 128
 
+
+
+
+
 PLAYER_SCALE = (100, 100)
 RAPTOR_SCALE = (150, 150)
+PLAYER_COLLISION_X = (WINDOW_WIDTH/2,(WINDOW_WIDTH / 2) + PLAYER_SCALE[0])
+PLAYER_COLLISION_Y = (WINDOW_HEIGHT/2, (WINDOW_HEIGHT / 2) + PLAYER_SCALE[1])
+player_rect = pygame.Rect((WINDOW_WIDTH/2, WINDOW_HEIGHT/2), (50,PLAYER_SCALE[1]))
 
 wall = pygame.image.load('Tile_Wall.png')
 tile_wall = pygame.transform.scale(wall, (tile_size, tile_size))
@@ -62,7 +69,6 @@ RAPTOR_SPEED = 7
 RAPTOR_ATTACK_DISTANCE = 20
 ANIMATION_FRAME_STEP = 10
 wall_list = []
-
 def check_rifle_equipped(asset):
     """checks for end of rifle equip animation and sets the subsequent image_list"""
     if asset.image_list == player_rifle_equip and asset.animation_frame == 2:  # final animation frame
@@ -144,8 +150,8 @@ class Map:
 
     def wall_blit(self,tile_x,tile_y):
         WINDOW.blit(tile_wall, (tile_x + self.x, self.y + tile_y))
-        wall_list.append((tile_x + self.x, self.y + tile_y))
-
+        collision = pygame.Rect((tile_x + self.x, self.y + tile_y),(tile_size, tile_size) )
+        wall_list.append(collision)
     def floor_blit(self,tile_x, tile_y):
         WINDOW.blit(tile_floor, (tile_x + self.x, tile_y + self.y))
 
@@ -163,6 +169,14 @@ class Map:
                 command = map_d[tile]
                 command(tile_x, tile_y)
                 tile_x += tile_size
+            for i in wall_list:
+                if player_rect.colliderect(i):
+                  print'hello'
+
+
+
+
+
 
 
 
@@ -289,6 +303,7 @@ while True:
     else:
         spawn_timer += 1
     level_map.update_map()
+    wall_list = []
     # controls
     if event.type == pygame.KEYDOWN:
         key_pressed = pygame.key.name(event.key)
