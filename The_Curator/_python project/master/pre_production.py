@@ -1,7 +1,7 @@
 import pygame, sys, time, random, math
 from pygame.locals import *
 
-pygame.init
+pygame.init()
 
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 600
@@ -189,7 +189,6 @@ class Bullet:
         self.direction = bullet_direction
         self.rect = pygame.Rect(self.x, self.y, bullet_size, bullet_size)
 
-<<<<<<< .mine
     def fire_bullet(self):
         bullets.append(Bullet((WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), (normalised_x, normalised_y)))
 
@@ -206,24 +205,6 @@ class Bullet:
         pygame.draw.rect(WINDOW, bullet_colour, self.rect)
 
 
-=======
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
->>>>>>> .theirs
 class Player:
     """player class"""
 
