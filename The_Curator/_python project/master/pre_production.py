@@ -16,10 +16,6 @@ score = 0
 level = 0
 tile_size = 128
 
-
-
-
-
 PLAYER_SCALE = (100, 100)
 RAPTOR_SCALE = (150, 150)
 PLAYER_COLLISION_X = (WINDOW_WIDTH/2,(WINDOW_WIDTH / 2) + PLAYER_SCALE[0])
@@ -205,6 +201,8 @@ class Bullet:
     def move_bullet(self):
         self.x += self.direction[0] * bullet_speed
         self.y += self.direction[1] * bullet_speed
+        if self.x < 0 or self.x > WINDOW_WIDTH or self.y < 0 or self.y > WINDOW_HEIGHT:
+            bullets.pop()
 
     def update_collider(self):
         self.rect = pygame.Rect(self.x, self.y, bullet_size, bullet_size)
@@ -306,7 +304,7 @@ print 'wasd controls, e to equip/holster weapon, player faces mouse cursor'
 
 
 while True:
-    WINDOW.fill((255, 255, 255))
+    WINDOW.fill((100, 100, 100))
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
