@@ -18,8 +18,6 @@ tile_size = 128
 
 PLAYER_SCALE = (100, 100)
 RAPTOR_SCALE = (150, 150)
-PLAYER_COLLISION_X = (WINDOW_WIDTH/2,(WINDOW_WIDTH / 2) + PLAYER_SCALE[0])
-PLAYER_COLLISION_Y = (WINDOW_HEIGHT/2, (WINDOW_HEIGHT / 2) + PLAYER_SCALE[1])
 player_rect = pygame.Rect((WINDOW_WIDTH/2, WINDOW_HEIGHT/2), (50,PLAYER_SCALE[1]))
 
 wall = pygame.image.load('Tile_Wall.png')
@@ -113,10 +111,10 @@ class Map:
         self.y = y
         self.map_array =[
                          9, 9, 9, 9, 9, 9, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2,
-                         9, 9, 9, 1, 1, 1, 9, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2,
-                         9, 9, 9, 1, 0, 1, 9, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 2,
-                         9, 9, 9, 1, 0, 1, 9, 1, 0, 1, 1, 1, 0, 1, 9, 9, 1, 0, 1, 9, 9, 9, 2,
-                         9, 9, 9, 1, 0, 1, 9, 1, 0, 1, 1, 1, 0, 1, 9, 9, 1, 0, 1, 9, 9, 9, 2,
+                         9, 9, 9, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2,
+                         9, 9, 9, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 2,
+                         9, 9, 9, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 9, 9, 1, 0, 1, 9, 9, 9, 2,
+                         9, 9, 9, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 9, 9, 1, 0, 1, 9, 9, 9, 2,
                          1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 9, 9, 1, 0, 1, 9, 9, 9, 2,
                          1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9, 9, 1, 0, 1, 9, 9, 9, 2,
                          1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9, 9, 1, 0, 1, 9, 9, 9, 2,
@@ -179,12 +177,23 @@ class Map:
                 for j in xrange(centre_tile[1]-1, centre_tile[1]+1):
                     # check colliders player vs wall_tile(i, j)"""
 
-            for i in wall_list:
-                if player_rect.colliderect(i):
+    def update_collider(self,last_key):
+        for i in wall_list:
+            if player_rect.colliderect(i):
+                print 'hello'
+                if last_key == 'w':
+                    self.y += -PLAYER_SPEED-1
+                if last_key == 'a':
+                    self.x += -PLAYER_SPEED-1
+                if last_key == 's':
+                    self.y += PLAYER_SPEED+1
+                if last_key == 'd':
+                    self.x += PLAYER_SPEED+1
+                else:
                     pass
 
 
-class actor:
+class Actor:
     def __init__(self, image_list, x, y):
         self.x = x
         self.y = y
@@ -233,11 +242,11 @@ class Bullet:
         pygame.draw.rect(WINDOW, bullet_colour, self.rect)
 
 
-class Player(actor):
+class Player(Actor):
     """player class"""
 
     def __init__(self, image_list, x, y):
-        actor.__init__(self, image_list, x, y)
+        Actor.__init__(self, image_list, x, y)
         self.equip_rifle_animation = False
 
     def equip_weapon(self):
@@ -249,11 +258,11 @@ class Player(actor):
             self.image_list = player_rifle_holster
 
 
-class Raptor(actor):
+class Raptor(Actor):
     """Raptor class"""
 
     def __init__(self, image_list, x, y):
-        actor.__init__(self, image_list, x, y)
+        Actor.__init__(self, image_list, x, y)
         self.attacking = False
         self.rect = pygame.Rect(self.x, self.y, 3 * RAPTOR_SCALE[0], 3 * RAPTOR_SCALE[1])
 
@@ -282,8 +291,6 @@ class Raptor(actor):
     def patrol(self, start_point, finish_point, travel_time):
         patrol_path = finish_point - start_point
 
-
-
 # initiate enemy list
 enemies = [Raptor(raptor_running, WINDOW_WIDTH, WINDOW_HEIGHT / 2)]
 
@@ -302,6 +309,7 @@ controls = {'w': level_map.move_up,
 
 print 'wasd controls, e to equip/holster weapon, player faces mouse cursor'
 
+key_pressed = 0
 
 while True:
     WINDOW.fill((100, 100, 100))
@@ -349,12 +357,18 @@ while True:
         if key_pressed in controls:
             player.moving = True
             controls[key_pressed]()
+            level_map.update_collider(key_pressed)
+            wall_list = []
+
+
 
     # to allow rifle equip animation without interruption
     elif not player.equip_rifle_animation:
         player.moving = False
 
     # Display
+    level_map.update_map()
+
 
     for i in xrange(0, enemies.__len__()):
         WINDOW.blit(enemies[i].image, (enemies[i].x + level_map.x, enemies[i].y + level_map.y))
