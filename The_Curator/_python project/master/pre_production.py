@@ -184,6 +184,25 @@ class Map:
                     pass
 
 
+class actor:
+    def __init__(self, image_list, x, y):
+        self.x = x
+        self.y = y
+        self.keyframe = 0
+        self.animation_frame = 0
+        self.image_list = image_list
+        self.image = self.image_list[0]
+        self.look_left = True
+        self.moving = True
+        self.rect = pygame.Rect(self.x, self.y, 3 * RAPTOR_SCALE[0], 3 * RAPTOR_SCALE[1])
+
+    def standing(self):
+        self.keyframe = 0
+        # so when the animation sequence starts it begins from the first frame
+        self.animation_frame = 1
+        self.image = self.image_list[0]
+
+
 class Bullet:
     """Bullet class"""
     def __init__(self, player_position, bullet_direction):
@@ -214,25 +233,12 @@ class Bullet:
         pygame.draw.rect(WINDOW, bullet_colour, self.rect)
 
 
-class Player:
+class Player(actor):
     """player class"""
 
     def __init__(self, image_list, x, y):
-        self.x = x
-        self.y = y
-        self.keyframe = 0
-        self.animation_frame = 0
-        self.image_list = image_list
-        self.image = self.image_list[0]
-        self.look_left = False
-        self.moving = True
+        actor.__init__(self, image_list, x, y)
         self.equip_rifle_animation = False
-
-    def standing(self):
-        self.keyframe = 0
-        # so when the animation sequence starts it begins from the first frame
-        self.animation_frame = 1
-        self.image = self.image_list[0]
 
     def equip_weapon(self):
         """toggles equip/holster image list and starts the animation"""
@@ -243,26 +249,13 @@ class Player:
             self.image_list = player_rifle_holster
 
 
-class Raptor:
+class Raptor(actor):
     """Raptor class"""
 
     def __init__(self, image_list, x, y):
-        self.x = x
-        self.y = y
-        self.keyframe = 0
-        self.animation_frame = 0
-        self.image_list = image_list
-        self.image = self.image_list[0]
-        self.look_left = True
-        self.moving = True
+        actor.__init__(self, image_list, x, y)
         self.attacking = False
-        self.rect = pygame.Rect(self.x, self.y, RAPTOR_SCALE[0], RAPTOR_SCALE[1])
-
-    def standing(self):  # is this used? Maybe in sneak section
-        self.keyframe = 0
-        # so when the animation sequence starts it begins from the first frame
-        self.animation_frame = 1
-        self.image = self.image_list[0]
+        self.rect = pygame.Rect(self.x, self.y, 3 * RAPTOR_SCALE[0], 3 * RAPTOR_SCALE[1])
 
     def advance(self, player_position, level_map):
         self.rect = pygame.Rect(self.x, self.y, RAPTOR_SCALE[0], RAPTOR_SCALE[1])
@@ -298,7 +291,7 @@ enemies = [Raptor(raptor_running, WINDOW_WIDTH, WINDOW_HEIGHT / 2)]
 player = Player(player_walking, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
 
 # create map
-level_map = Map(0, 0)
+level_map = Map(200, -450)
 
 # Controls dictionary
 controls = {'w': level_map.move_up,
@@ -347,6 +340,7 @@ while True:
             last_milestone = score
     else:
         spawn_timer += 1
+
     level_map.update_map()
     wall_list = []
     # controls
