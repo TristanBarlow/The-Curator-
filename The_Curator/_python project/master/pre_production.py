@@ -193,6 +193,7 @@ class Map:
                     pass
 
 
+
 class Actor:
     def __init__(self, image_list, x, y):
         self.x = x
