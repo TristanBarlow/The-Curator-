@@ -18,7 +18,8 @@ tile_size = 128
 
 PLAYER_SCALE = (100, 100)
 RAPTOR_SCALE = (150, 150)
-player_rect = pygame.Rect((WINDOW_WIDTH/2, WINDOW_HEIGHT/2), (50,PLAYER_SCALE[1]))
+player_rect = pygame.Rect(((WINDOW_WIDTH / 2)-25, (WINDOW_HEIGHT / 2)+5), (40, 90))
+
 
 wall = pygame.image.load('Tile_Wall.png')
 tile_wall = pygame.transform.scale(wall, (tile_size, tile_size))
@@ -182,15 +183,16 @@ class Map:
             if player_rect.colliderect(i):
                 print 'hello'
                 if last_key == 'w':
-                    self.y += -PLAYER_SPEED-1
+                    self.y += -PLAYER_SPEED-10
                 if last_key == 'a':
-                    self.x += -PLAYER_SPEED-1
+                    self.x += -PLAYER_SPEED-10
                 if last_key == 's':
-                    self.y += PLAYER_SPEED+1
+                    self.y += PLAYER_SPEED+10
                 if last_key == 'd':
-                    self.x += PLAYER_SPEED+1
+                    self.x += PLAYER_SPEED+10
                 else:
                     pass
+
 
 
 
@@ -299,7 +301,7 @@ enemies = [Raptor(raptor_running, WINDOW_WIDTH, WINDOW_HEIGHT / 2)]
 player = Player(player_walking, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
 
 # create map
-level_map = Map(200, -450)
+level_map = Map(200, -470)
 
 # Controls dictionary
 controls = {'w': level_map.move_up,
@@ -366,6 +368,7 @@ while True:
         player.moving = False
 
     # Display
+    wall_list = []
     level_map.update_map()
 
 
