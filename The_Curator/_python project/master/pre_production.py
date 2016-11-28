@@ -18,7 +18,9 @@ tile_size = 128
 
 PLAYER_SCALE = (100, 100)
 RAPTOR_SCALE = (150, 150)
-player_rect = pygame.Rect(((WINDOW_WIDTH / 2)-25, (WINDOW_HEIGHT / 2)+5), (40, 90))
+PLAYER_SPRITE_POS = ((WINDOW_WIDTH / 2)-25, (WINDOW_HEIGHT / 2)+5)
+REAL_PLAYER_SIZE = (40, 90)
+player_rect = pygame.Rect(PLAYER_SPRITE_POS, REAL_PLAYER_SIZE)
 
 
 wall = pygame.image.load('Tile_Wall.png')
