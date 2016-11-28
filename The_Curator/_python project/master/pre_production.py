@@ -350,8 +350,6 @@ while True:
     else:
         spawn_timer += 1
 
-    level_map.update_map()
-    wall_list = []
     # controls
     if event.type == pygame.KEYDOWN:
         key_pressed = pygame.key.name(event.key)
