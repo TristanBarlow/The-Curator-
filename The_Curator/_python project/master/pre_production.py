@@ -120,10 +120,14 @@ class Map:
                 command(tile_x, tile_y)
                 tile_x += load.tile_size
 
-            """find centre tile (x, y)
-            for i in xrange(centre_tile[0]-1, centre_tile[0]+1):
-                for j in xrange(centre_tile[1]-1, centre_tile[1]+1):
-                    # check colliders player vs wall_tile(i, j)"""
+            """
+            Return the rectangle colliding with rather than,
+            bool
+
+
+
+
+            """
 
     def update_collider(self,last_key):
         for i in self.list:
@@ -162,7 +166,7 @@ class Actor:
         self.image = self.image_list[0]
 
     def health_bar(self, level_map):
-        pygame.draw.rect(WINDOW, (255, 0, 0), (self.x+level_map.x, self.y + level_map.y,self.health,5))
+        pygame.draw.rect(WINDOW, (255, 0, 0), (self.x+ level_map.x, self.y + level_map.y,self.health,5))
 
 
 class Bullet:
@@ -231,7 +235,7 @@ class Raptor(Actor):
     def update_collider(self, player_position, level_map):
         self.rect = pygame.Rect(self.x+level_map.x, self.y+level_map.y, load.RAPTOR_SCALE[0], load.RAPTOR_SCALE[1])
 
-    def advance(self, player_position, level_map):
+    def advance(self, player_position, level_map, player_health):
         difference_x = player_position[0] - self.x - level_map.x
         difference_y = player_position[1] - self.y - level_map.y
 
@@ -241,10 +245,14 @@ class Raptor(Actor):
             normalised_y = difference_y / (math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))))
             self.x += normalised_x * RAPTOR_SPEED
             self.y += normalised_y * RAPTOR_SPEED
+            self.attacking = False
         else:
             # initiate attacking
             self.attacking = True
+            player_health -= 10
             self.image_list = load.raptor_attack
+        return  player_health
+
 
         if difference_x < 0:
             self.look_left = True
@@ -338,7 +346,7 @@ while True:
     for i in xrange(0, enemies.__len__()):
         enemies[i].update_collider(PLAYER_POSITION,level_map)
         if not enemies[i].attacking:
-            enemies[i].advance((PLAYER_POSITION[0], PLAYER_POSITION[1]), level_map)
+            player_health = enemies[i].advance((PLAYER_POSITION[0], PLAYER_POSITION[1]), level_map, player_health)
         enemies[i].image = pygame.transform.flip(animator(enemies[i]), enemies[i].look_left, False)
 
     # check timer to spawn   need to put into a function. Actually this is just for demo
@@ -360,19 +368,20 @@ while True:
         raptor.patrol(raptor_patrol_positions_one, patrol_speed)
         WINDOW.blit(animator(raptor),(raptor.x + level_map.x, raptor.y + level_map.y))
 
-    for i in xrange(0, enemies.__len__()):
-        if enemies[i].health > 0:
-            enemies[i].health_bar(level_map)
-        WINDOW.blit(enemies[i].image, (enemies[i].x + level_map.x, enemies[i].y + level_map.y))
+    for enemy in enemies:
+        if enemy.health > 0:
+            enemy.health_bar(level_map)
+        WINDOW.blit(enemy.image,(enemy.x + level_map.x, enemy.y+level_map.y))
     player.image = animator(player)
-    WINDOW.blit(face_player_towards_cursor(player.x, mouse_position[0]), (player.x - (load.PLAYER_SCALE[0] / 2), player.y))  # blit position is adjusted to centre of image instead of top left corner
+    WINDOW.blit(face_player_towards_cursor(player.x, mouse_position[0]),
+                (player.x - (load.PLAYER_SCALE[0] / 2), player.y))
 
     for i in xrange(0, bullets.__len__()-1):
         bullets[i].move_bullet(i, enemies)
         bullets[i].update_collider()
         bullets[i].draw_bullet()
 
-    player.health_bar(level_map)
+    pygame.draw.rect(WINDOW, (255, 0, 0), (0,20, player_health*2, 10))
 
     pygame.display.update()
 
