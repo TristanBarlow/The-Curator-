@@ -257,15 +257,7 @@ class Raptor(Actor):
         else:
             self.look_left = False
 
-<<<<<<< .mine
         return player_health
-
-
-=======
-        return  player_health
-
-    def patrol(self, position_list, number_of_steps):
->>>>>>> .theirs
 
 
 class PatrollingRaptor(Raptor):
