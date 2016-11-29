@@ -31,12 +31,17 @@ player_rect = pygame.Rect(PLAYER_SPRITE_POS, REAL_PLAYER_SIZE)
 RAPTOR_SPEED = 7
 RAPTOR_ATTACK_DISTANCE = 20
 ANIMATION_FRAME_STEP = 10
+player_health = 100
 bullets = []
 bullet_size = 10
-bullet_speed = 10
+bullet_speed = 100
 bullet_colour = 0, 0, 0
 PLAYER_POSITION = (WINDOW_WIDTH/2, WINDOW_HEIGHT/2)
 centre_tile = ()
+
+raptor_patrol_position_one = (500, 200)
+raptor_patrol_position_two = (500, 800) # not checked second position yet
+patrol_speed = 200
 
 
 def check_rifle_equipped(asset):
@@ -138,9 +143,8 @@ class Map:
         self.list = []
 
 
-
-
 class Actor:
+    """Super class for shared fields of player and raptor"""
     def __init__(self, image_list, x, y):
         self.x = x
         self.y = y
@@ -150,13 +154,16 @@ class Actor:
         self.image = self.image_list[0]
         self.look_left = True
         self.moving = True
-        self.rect = pygame.Rect(self.x, self.y, 3 * load.RAPTOR_SCALE[0], 3 * load.RAPTOR_SCALE[1])
+        self.health = 100
 
     def standing(self):
         self.keyframe = 0
         # so when the animation sequence starts it begins from the first frame
         self.animation_frame = 1
         self.image = self.image_list[0]
+
+    def health_bar(self, level_map):
+        pygame.draw.rect(WINDOW, (255, 0, 0), (self.x+level_map.x, self.y + level_map.y,self.health,5))
 
 
 class Bullet:
@@ -177,10 +184,16 @@ class Bullet:
         self.y += self.direction[1] * bullet_speed
         if self.x < 0 or self.x > WINDOW_WIDTH or self.y < 0 or self.y > WINDOW_HEIGHT:
             bullets.pop(i)
-        for j in xrange(0, enemies.__len__() - 1):
-            if self.rect.colliderect(enemies[j].rect):
-                enemies[j].image_list = load.raptor_dead_list
-                enemies[j].moving = False
+
+        for j in enemies:
+            if self.rect.colliderect(j.rect):
+                j.health -= 25
+                if j.health < 0:
+                    j.image_list = load.raptor_dead_list
+                    j.moving = False
+                    j.health = 0
+
+
 
     def update_collider(self):
         self.rect = pygame.Rect(self.x, self.y, bullet_size, bullet_size)
@@ -211,11 +224,12 @@ class Raptor(Actor):
     def __init__(self, image_list, x, y):
         Actor.__init__(self, image_list, x, y)
         self.attacking = False
-        self.rect = pygame.Rect(self.x, self.y, 3 * load.RAPTOR_SCALE[0], 3 * load.RAPTOR_SCALE[1])
+        self.rect = pygame.Rect(self.x, self.y,load.RAPTOR_SCALE[0],load.RAPTOR_SCALE[1])
+
+    def update_collider(self, player_position, level_map):
+        self.rect = pygame.Rect(self.x+level_map.x, self.y+level_map.y, load.RAPTOR_SCALE[0], load.RAPTOR_SCALE[1])
 
     def advance(self, player_position, level_map):
-        self.rect = pygame.Rect(self.x, self.y, load.RAPTOR_SCALE[0], load.RAPTOR_SCALE[1])
-
         difference_x = player_position[0] - self.x - level_map.x
         difference_y = player_position[1] - self.y - level_map.y
 
@@ -236,9 +250,15 @@ class Raptor(Actor):
             self.look_left = False
 
     def patrol(self, start_point, finish_point, travel_time):
-        patrol_path = finish_point - start_point
+        patrol_path_x = finish_point[0] - start_point[0]
+        patrol_path_y = finish_point[1] - start_point[1]
+        travel_step_x = patrol_path_x / travel_time
+        travel_step_y = patrol_path_y / travel_time
+        self.x += travel_step_x
+        self.y += travel_step_y
 
 # initiate enemy list
+patrolling_enemies = [Raptor(load.raptor_walking, raptor_patrol_position_one[0], raptor_patrol_position_one[1])]
 enemies = [Raptor(load.raptor_running, WINDOW_WIDTH, WINDOW_HEIGHT / 2)]
 
 # create player
@@ -270,7 +290,7 @@ while True:
             pygame.mouse.set_cursor(*pygame.cursors.broken_x)
             mouse_position = pygame.mouse.get_pos()
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and player.image_list == load.player_rifle_walking:
             mouse_delta_x = mouse_position[0] - PLAYER_POSITION[0]
             mouse_delta_y = mouse_position[1] - PLAYER_POSITION[1]
 
@@ -300,6 +320,7 @@ while True:
 
     # either advance enemies or attacking animation continues
     for i in xrange(0, enemies.__len__()):
+        enemies[i].update_collider(PLAYER_POSITION,level_map)
         if not enemies[i].attacking:
             enemies[i].advance((PLAYER_POSITION[0], PLAYER_POSITION[1]), level_map)
         enemies[i].image = pygame.transform.flip(animator(enemies[i]), enemies[i].look_left, False)
@@ -315,15 +336,18 @@ while True:
             last_milestone = score
     else:
         spawn_timer += 1
-    # for i in enemies:
-    #     for j in bullets:
 
-    # Display
+
     level_map.update_collider(key_pressed)
     level_map.update_map()
 
+    for raptor in patrolling_enemies:
+        raptor.patrol(raptor_patrol_position_one, raptor_patrol_position_two, patrol_speed)
+        WINDOW.blit(animator(raptor),(raptor.x + level_map.x, raptor.y + level_map.y))
 
     for i in xrange(0, enemies.__len__()):
+        if enemies[i].health > 0:
+            enemies[i].health_bar(level_map)
         WINDOW.blit(enemies[i].image, (enemies[i].x + level_map.x, enemies[i].y + level_map.y))
     player.image = animator(player)
     WINDOW.blit(face_player_towards_cursor(player.x, mouse_position[0]), (player.x - (load.PLAYER_SCALE[0] / 2), player.y))  # blit position is adjusted to centre of image instead of top left corner
@@ -332,6 +356,8 @@ while True:
         bullets[i].move_bullet(i, enemies)
         bullets[i].update_collider()
         bullets[i].draw_bullet()
+
+    player.health_bar(level_map)
 
     pygame.display.update()
 
