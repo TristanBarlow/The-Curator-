@@ -65,7 +65,6 @@ PLAYER_SPEED = 4
 RAPTOR_SPEED = 7
 RAPTOR_ATTACK_DISTANCE = 20
 ANIMATION_FRAME_STEP = 10
-wall_list = []
 bullets = []
 bullet_size = 10
 bullet_speed = 10
@@ -112,6 +111,7 @@ class Map:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+        self.list = []
         self.map_array =[
                          9, 9, 9, 9, 9, 9, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2,
                          9, 9, 9, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2,
@@ -155,7 +155,7 @@ class Map:
     def wall_blit(self,tile_x,tile_y):
         WINDOW.blit(tile_wall, (tile_x + self.x, self.y + tile_y))
         collision = pygame.Rect((tile_x + self.x, self.y + tile_y),(tile_size, tile_size) )
-        wall_list.append(collision)
+        self.list.append(collision)
 
     def floor_blit(self,tile_x, tile_y):
         WINDOW.blit(tile_floor, (tile_x + self.x, tile_y + self.y))
@@ -181,7 +181,7 @@ class Map:
                     # check colliders player vs wall_tile(i, j)"""
 
     def update_collider(self,last_key):
-        for i in wall_list:
+        for i in self.list:
             if player_rect.colliderect(i):
                 print 'hello'
                 if last_key == 'w':
@@ -194,6 +194,7 @@ class Map:
                     self.x += PLAYER_SPEED+10
                 else:
                     pass
+        self.list = []
 
 
 
@@ -353,6 +354,8 @@ while True:
             last_milestone = score
     else:
         spawn_timer += 1
+    # for i in enemies:
+    #     for j in bullets:
 
     # controls
     if event.type == pygame.KEYDOWN:
@@ -361,7 +364,6 @@ while True:
             player.moving = True
             controls[key_pressed]()
             level_map.update_collider(key_pressed)
-            wall_list = []
 
 
 
@@ -370,7 +372,6 @@ while True:
         player.moving = False
 
     # Display
-    wall_list = []
     level_map.update_map()
 
 
