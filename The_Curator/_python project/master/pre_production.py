@@ -37,6 +37,10 @@ bullet_colour = 0, 0, 0
 PLAYER_POSITION = (WINDOW_WIDTH/2, WINDOW_HEIGHT/2)
 centre_tile = ()
 
+raptor_patrol_position_one = (500, 200)
+raptor_patrol_position_two = (500, 800) # not checked second position yet
+patrol_speed = 200
+
 
 def check_rifle_equipped(asset):
     """checks for end of rifle equip animation and sets the subsequent image_list"""
@@ -137,9 +141,8 @@ class Map:
         self.list = []
 
 
-
-
 class Actor:
+    """Super class for shared fields of player and raptor"""
     def __init__(self, image_list, x, y):
         self.x = x
         self.y = y
@@ -149,7 +152,6 @@ class Actor:
         self.image = self.image_list[0]
         self.look_left = True
         self.moving = True
-        self.rect = pygame.Rect(self.x, self.y, 3 * load.RAPTOR_SCALE[0], 3 * load.RAPTOR_SCALE[1])
 
     def standing(self):
         self.keyframe = 0
@@ -247,9 +249,15 @@ class Raptor(Actor):
             self.look_left = False
 
     def patrol(self, start_point, finish_point, travel_time):
-        patrol_path = finish_point - start_point
+        patrol_path_x = finish_point[0] - start_point[0]
+        patrol_path_y = finish_point[1] - start_point[1]
+        travel_step_x = patrol_path_x / travel_time
+        travel_step_y = patrol_path_y / travel_time
+        self.x += travel_step_x
+        self.y += travel_step_y
 
 # initiate enemy list
+patrolling_enemies = [Raptor(load.raptor_walking, raptor_patrol_position_one[0], raptor_patrol_position_one[1])]
 enemies = [Raptor(load.raptor_running, WINDOW_WIDTH, WINDOW_HEIGHT / 2)]
 
 # create player
@@ -280,7 +288,7 @@ while True:
             pygame.mouse.set_cursor(*pygame.cursors.broken_x)
             mouse_position = pygame.mouse.get_pos()
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and player.image_list == load.player_rifle_walking:
             mouse_delta_x = mouse_position[0] - PLAYER_POSITION[0]
             mouse_delta_y = mouse_position[1] - PLAYER_POSITION[1]
 
@@ -315,9 +323,6 @@ while True:
             player.moving = True
             controls[key_pressed]()
 
-
-
-
     # to allow rifle equip animation without interruption
     elif not player.equip_rifle_animation:
         player.moving = False
@@ -326,6 +331,9 @@ while True:
     level_map.update_collider(key_pressed)
     level_map.update_map()
 
+    for raptor in patrolling_enemies:
+        raptor.patrol(raptor_patrol_position_one, raptor_patrol_position_two, patrol_speed)
+        WINDOW.blit(animator(raptor),(raptor.x + level_map.x, raptor.y + level_map.y))
 
     for i in xrange(0, enemies.__len__()):
         enemies[i].health_bar(level_map)
@@ -337,8 +345,6 @@ while True:
         bullets[i].move_bullet(i, enemies)
         bullets[i].update_collider()
         bullets[i].draw_bullet()
-
-
 
     pygame.display.update()
 
