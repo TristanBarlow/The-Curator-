@@ -182,7 +182,7 @@ class Bullet:
 
         enemies[enemies.__len__() - 1].image_list = load.raptor_dead_list
 
-    def move_bullet(self, i, enemies):
+    def move_bullet(self,i, enemies):
         self.x += self.direction[0] * bullet_speed
         self.y += self.direction[1] * bullet_speed
         if self.x < 0 or self.x > WINDOW_WIDTH or self.y < 0 or self.y > WINDOW_HEIGHT:
@@ -251,13 +251,15 @@ class Raptor(Actor):
             self.attacking = True
             player_health -= 10
             self.image_list = load.raptor_attack
-        return  player_health
+
 
 
         if difference_x < 0:
             self.look_left = True
         else:
             self.look_left = False
+
+        return  player_health
 
     def patrol(self, position_list, number_of_steps):
 
@@ -300,8 +302,9 @@ controls = {'w': level_map.move_up,
 
 print 'wasd controls, e to equip/holster weapon, player faces mouse cursor'
 
-key_pressed = 0
+key_pressed = None
 next_control = None
+
 
 while True:
     WINDOW.fill((100, 100, 100))
@@ -341,14 +344,6 @@ while True:
     elif not player.equip_rifle_animation:
         player.moving = False
 
-
-    # either advance enemies or attacking animation continues
-    for i in xrange(0, enemies.__len__()):
-        enemies[i].update_collider(PLAYER_POSITION,level_map)
-        if not enemies[i].attacking:
-            player_health = enemies[i].advance((PLAYER_POSITION[0], PLAYER_POSITION[1]), level_map, player_health)
-        enemies[i].image = pygame.transform.flip(animator(enemies[i]), enemies[i].look_left, False)
-
     # check timer to spawn   need to put into a function. Actually this is just for demo
     if spawn_timer == spawn_time:
         enemies.append(Raptor(load.raptor_running, random.randint(0, WINDOW_WIDTH), random.randint(0, WINDOW_HEIGHT)))
@@ -368,7 +363,14 @@ while True:
         raptor.patrol(raptor_patrol_positions_one, patrol_speed)
         WINDOW.blit(animator(raptor),(raptor.x + level_map.x, raptor.y + level_map.y))
 
+        # either advance enemies or attacking animation continues
+
+
     for enemy in enemies:
+        enemy.update_collider(PLAYER_POSITION, level_map)
+        if not enemy.attacking:
+            player_health = enemy.advance((PLAYER_POSITION[0], PLAYER_POSITION[1]), level_map, player_health)
+        enemy.image = pygame.transform.flip(animator(enemy), enemy.look_left, False)
         if enemy.health > 0:
             enemy.health_bar(level_map)
         WINDOW.blit(enemy.image,(enemy.x + level_map.x, enemy.y+level_map.y))
@@ -376,10 +378,13 @@ while True:
     WINDOW.blit(face_player_towards_cursor(player.x, mouse_position[0]),
                 (player.x - (load.PLAYER_SCALE[0] / 2), player.y))
 
-    for i in xrange(0, bullets.__len__()-1):
-        bullets[i].move_bullet(i, enemies)
-        bullets[i].update_collider()
-        bullets[i].draw_bullet()
+    #Bullet stuff
+    counter = 0
+    for i in bullets:
+        i.move_bullet(counter, enemies)
+        i.update_collider()
+        i.draw_bullet()
+        counter += 1
 
     pygame.draw.rect(WINDOW, (255, 0, 0), (0,20, player_health*2, 10))
 
