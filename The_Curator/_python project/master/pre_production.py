@@ -121,10 +121,14 @@ class Map:
                 command(tile_x, tile_y)
                 tile_x += load.tile_size
 
-            """find centre tile (x, y)
-            for i in xrange(centre_tile[0]-1, centre_tile[0]+1):
-                for j in xrange(centre_tile[1]-1, centre_tile[1]+1):
-                    # check colliders player vs wall_tile(i, j)"""
+            """
+            Return the rectangle colliding with rather than,
+            bool
+
+
+
+
+            """
 
     def update_collider(self,last_key):
         for i in self.list:
@@ -349,12 +353,13 @@ while True:
         raptor.patrol(raptor_patrol_position_one, raptor_patrol_position_two, patrol_speed)
         WINDOW.blit(animator(raptor),(raptor.x + level_map.x, raptor.y + level_map.y))
 
-    for i in xrange(0, enemies.__len__()):
-        if enemies[i].health > 0:
-            enemies[i].health_bar(level_map)
-        WINDOW.blit(enemies[i].image, (enemies[i].x + level_map.x, enemies[i].y + level_map.y))
+    for enemy in enemies:
+        if enemy.health > 0:
+            enemy.health_bar(level_map)
+        WINDOW.blit(enemy.image,(enemy.x + level_map.x, enemy.y+level_map.y))
     player.image = animator(player)
-    WINDOW.blit(face_player_towards_cursor(player.x, mouse_position[0]), (player.x - (load.PLAYER_SCALE[0] / 2), player.y))  # blit position is adjusted to centre of image instead of top left corner
+    WINDOW.blit(face_player_towards_cursor(player.x, mouse_position[0]),
+                (player.x - (load.PLAYER_SCALE[0] / 2), player.y))
 
     for i in xrange(0, bullets.__len__()-1):
         bullets[i].move_bullet(i, enemies)
