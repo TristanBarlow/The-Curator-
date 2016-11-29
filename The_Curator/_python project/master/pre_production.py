@@ -163,7 +163,7 @@ class Actor:
         self.image = self.image_list[0]
 
     def health_bar(self, level_map):
-        pygame.draw.rect(WINDOW, (255, 0, 0), (self.x+level_map.x, self.y + level_map.y,self.health,5))
+        pygame.draw.rect(WINDOW, (255, 0, 0), (self.x+ level_map.x, self.y + level_map.y,self.health,5))
 
 
 class Bullet:
@@ -229,7 +229,7 @@ class Raptor(Actor):
     def update_collider(self, player_position, level_map):
         self.rect = pygame.Rect(self.x+level_map.x, self.y+level_map.y, load.RAPTOR_SCALE[0], load.RAPTOR_SCALE[1])
 
-    def advance(self, player_position, level_map):
+    def advance(self, player_position, level_map, player_health):
         difference_x = player_position[0] - self.x - level_map.x
         difference_y = player_position[1] - self.y - level_map.y
 
@@ -239,10 +239,14 @@ class Raptor(Actor):
             normalised_y = difference_y / (math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))))
             self.x += normalised_x * RAPTOR_SPEED
             self.y += normalised_y * RAPTOR_SPEED
+            self.attacking = False
         else:
             # initiate attacking
             self.attacking = True
+            player_health -= 10
             self.image_list = load.raptor_attack
+        return  player_health
+
 
         if difference_x < 0:
             self.look_left = True
@@ -322,7 +326,7 @@ while True:
     for i in xrange(0, enemies.__len__()):
         enemies[i].update_collider(PLAYER_POSITION,level_map)
         if not enemies[i].attacking:
-            enemies[i].advance((PLAYER_POSITION[0], PLAYER_POSITION[1]), level_map)
+            player_health = enemies[i].advance((PLAYER_POSITION[0], PLAYER_POSITION[1]), level_map, player_health)
         enemies[i].image = pygame.transform.flip(animator(enemies[i]), enemies[i].look_left, False)
 
     # check timer to spawn   need to put into a function. Actually this is just for demo
@@ -357,7 +361,7 @@ while True:
         bullets[i].update_collider()
         bullets[i].draw_bullet()
 
-    player.health_bar(level_map)
+    pygame.draw.rect(WINDOW, (255, 0, 0), (0,20, player_health*2, 10))
 
     pygame.display.update()
 
