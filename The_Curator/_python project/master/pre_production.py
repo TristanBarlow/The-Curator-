@@ -1,4 +1,4 @@
-import pygame, sys, time, random, math, map, load
+import pygame, sys, time, random, math, map, load, titlescreen
 from pygame.locals import *
 
 pygame.init()
@@ -8,14 +8,16 @@ WINDOW_HEIGHT = 600
 
 WINDOW = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 
+#TITLE SCREEN LOOP set 4th argument to False to not get title screen.
+titlescreen.TitleScreen(WINDOW,WINDOW_WIDTH,WINDOW_HEIGHT,True)
+#WHEN TITLE SCREEN ENDS IT CONTINUES
+
 mouse_position = (WINDOW_WIDTH, WINDOW_HEIGHT)
 spawn_timer = 0
 spawn_time = 150
 last_milestone = 0
 score = 0
 level = 0
-
-
 
 
 PLAYER_SPRITE_POS = ((WINDOW_WIDTH / 2)-25, (WINDOW_HEIGHT / 2)+5)
@@ -255,6 +257,7 @@ controls = {'w': level_map.move_up,
 print 'wasd controls, e to equip/holster weapon, player faces mouse cursor'
 
 key_pressed = 0
+next_control = None
 
 while True:
     WINDOW.fill((100, 100, 100))
@@ -276,6 +279,25 @@ while True:
 
             bullets.append(Bullet(PLAYER_POSITION, (normalised_x, normalised_y)))
 
+        # controls
+        if event.type == pygame.KEYDOWN:
+            key_pressed = pygame.key.name(event.key)
+            if key_pressed in controls:
+                player.moving = True
+                next_control = controls[key_pressed]
+        elif event.type == pygame.KEYUP:
+            next_control = None
+
+
+
+    #controls to run every frame
+    if next_control != None:
+        next_control()
+    # to allow rifle equip animation without interruption
+    elif not player.equip_rifle_animation:
+        player.moving = False
+
+
     # either advance enemies or attacking animation continues
     for i in xrange(0, enemies.__len__()):
         if not enemies[i].attacking:
@@ -295,20 +317,6 @@ while True:
         spawn_timer += 1
     # for i in enemies:
     #     for j in bullets:
-
-    # controls
-    if event.type == pygame.KEYDOWN:
-        key_pressed = pygame.key.name(event.key)
-        if key_pressed in controls:
-            player.moving = True
-            controls[key_pressed]()
-
-
-
-
-    # to allow rifle equip animation without interruption
-    elif not player.equip_rifle_animation:
-        player.moving = False
 
     # Display
     level_map.update_collider(key_pressed)
