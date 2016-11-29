@@ -61,7 +61,6 @@ raptor_dead_list = [raptor_dead, raptor_dead]
 # for x in xrange (1, 6):
 #    raptor_images.append(pygame.image.load('rap_side_run%i.png'%x))
 
-PLAYER_SPEED = 4
 RAPTOR_SPEED = 7
 RAPTOR_ATTACK_DISTANCE = 20
 ANIMATION_FRAME_STEP = 10
@@ -112,19 +111,20 @@ class Map:
         self.x = x
         self.y = y
         self.list = []
+        self.speed = 4
         self.map_array = map.map_array
 
     def move_up(self):
-        self.y += PLAYER_SPEED
+        self.y += self.speed
 
     def move_down(self):
-        self.y += -PLAYER_SPEED
+        self.y += -self.speed
 
     def move_left(self):
-        self.x += PLAYER_SPEED
+        self.x += self.speed
 
     def move_right(self):
-        self.x += -PLAYER_SPEED
+        self.x += -self.speed
 
     def wall_blit(self,tile_x,tile_y):
         WINDOW.blit(tile_wall, (tile_x + self.x, self.y + tile_y))
@@ -159,13 +159,13 @@ class Map:
             if player_rect.colliderect(i):
                 print 'hello'
                 if last_key == 'w':
-                    self.y += -PLAYER_SPEED-10
+                    self.y += -self.speed
                 if last_key == 'a':
-                    self.x += -PLAYER_SPEED-10
+                    self.x += -self.speed
                 if last_key == 's':
-                    self.y += PLAYER_SPEED+10
+                    self.y += self.speed
                 if last_key == 'd':
-                    self.x += PLAYER_SPEED+10
+                    self.x += self.speed
                 else:
                     pass
         self.list = []
@@ -337,7 +337,7 @@ while True:
         if key_pressed in controls:
             player.moving = True
             controls[key_pressed]()
-            level_map.update_collider(key_pressed)
+
 
 
 
@@ -346,6 +346,7 @@ while True:
         player.moving = False
 
     # Display
+    level_map.update_collider(key_pressed)
     level_map.update_map()
 
 
