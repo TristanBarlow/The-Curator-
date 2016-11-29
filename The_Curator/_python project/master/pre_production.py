@@ -39,8 +39,7 @@ bullet_colour = 0, 0, 0
 PLAYER_POSITION = (WINDOW_WIDTH/2, WINDOW_HEIGHT/2)
 centre_tile = ()
 
-raptor_patrol_position_one = (500, 200)
-raptor_patrol_position_two = (500, 800) # not checked second position yet
+raptor_patrol_positions_one = [(500, 200), (500, 1200)] # not checked second position yet
 patrol_speed = 200
 
 
@@ -224,7 +223,10 @@ class Raptor(Actor):
     def __init__(self, image_list, x, y):
         Actor.__init__(self, image_list, x, y)
         self.attacking = False
-        self.rect = pygame.Rect(self.x, self.y,load.RAPTOR_SCALE[0],load.RAPTOR_SCALE[1])
+        self.rect = pygame.Rect(self.x, self.y, load.RAPTOR_SCALE[0], load.RAPTOR_SCALE[1])
+        self.patrol_timer = 0
+        self.patrol_index = 0
+        self.next_waypoint = 1
 
     def update_collider(self, player_position, level_map):
         self.rect = pygame.Rect(self.x+level_map.x, self.y+level_map.y, load.RAPTOR_SCALE[0], load.RAPTOR_SCALE[1])
@@ -249,16 +251,30 @@ class Raptor(Actor):
         else:
             self.look_left = False
 
-    def patrol(self, start_point, finish_point, travel_time):
-        patrol_path_x = finish_point[0] - start_point[0]
-        patrol_path_y = finish_point[1] - start_point[1]
-        travel_step_x = patrol_path_x / travel_time
-        travel_step_y = patrol_path_y / travel_time
+    def patrol(self, position_list, number_of_steps):
+
+        if (self.x, self.y) == position_list[self.next_waypoint]:
+            self.patrol_index += 1
+
+        if self.patrol_index == position_list.__len__():
+            self.patrol_index = 0
+
+        self.next_waypoint = self.patrol_index + 1
+
+        if self.next_waypoint == position_list.__len__():
+            self.next_waypoint = 0
+
+        patrol_path_x = position_list[self.next_waypoint][0] - position_list[self.patrol_index][0]
+        patrol_path_y = position_list[self.next_waypoint][1] - position_list[self.patrol_index][1]
+        travel_step_x = patrol_path_x / number_of_steps
+        travel_step_y = patrol_path_y / number_of_steps
+
         self.x += travel_step_x
         self.y += travel_step_y
+        print self.x, self.y
 
 # initiate enemy list
-patrolling_enemies = [Raptor(load.raptor_walking, raptor_patrol_position_one[0], raptor_patrol_position_one[1])]
+patrolling_enemies = [Raptor(load.raptor_walking, raptor_patrol_positions_one[0][0], raptor_patrol_positions_one[0][1])]
 enemies = [Raptor(load.raptor_running, WINDOW_WIDTH, WINDOW_HEIGHT / 2)]
 
 # create player
@@ -337,12 +353,11 @@ while True:
     else:
         spawn_timer += 1
 
-
     level_map.update_collider(key_pressed)
     level_map.update_map()
 
     for raptor in patrolling_enemies:
-        raptor.patrol(raptor_patrol_position_one, raptor_patrol_position_two, patrol_speed)
+        raptor.patrol(raptor_patrol_positions_one, patrol_speed)
         WINDOW.blit(animator(raptor),(raptor.x + level_map.x, raptor.y + level_map.y))
 
     for i in xrange(0, enemies.__len__()):
