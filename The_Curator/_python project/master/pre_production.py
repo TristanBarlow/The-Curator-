@@ -1,4 +1,4 @@
-import pygame, sys, time, random, math, map
+import pygame, sys, time, random, math, map, load
 from pygame.locals import *
 
 pygame.init()
@@ -14,49 +14,14 @@ spawn_time = 150
 last_milestone = 0
 score = 0
 level = 0
-tile_size = 128
 
-PLAYER_SCALE = (100, 100)
-RAPTOR_SCALE = (150, 150)
+
+
+
 PLAYER_SPRITE_POS = ((WINDOW_WIDTH / 2)-25, (WINDOW_HEIGHT / 2)+5)
 REAL_PLAYER_SIZE = (40, 90)
 player_rect = pygame.Rect(PLAYER_SPRITE_POS, REAL_PLAYER_SIZE)
 
-
-wall = pygame.image.load('Tile_Wall.png')
-tile_wall = pygame.transform.scale(wall, (tile_size, tile_size))
-floor = pygame.image.load('Cave_floor.png')
-tile_floor = pygame.transform.scale(floor, (tile_size, tile_size))
-
-player_standing = pygame.transform.scale(pygame.image.load('player_new_standing.png'), PLAYER_SCALE)
-player_walking1 = pygame.transform.scale(pygame.image.load('player_walk_lfb.png'), PLAYER_SCALE)
-player_walking2 = pygame.transform.scale(pygame.image.load('player_walk_lff.png'), PLAYER_SCALE)
-player_jacket = pygame.transform.scale(pygame.image.load('player_side_jacket_reach.png'), PLAYER_SCALE)
-player_rifle_stand = pygame.transform.scale(pygame.image.load('player_side_stand_rifle.png'), PLAYER_SCALE)
-player_rifle_walk1 = pygame.transform.scale(pygame.image.load('player_side_run_lff_rifle.png'), PLAYER_SCALE)
-player_rifle_walk2 = pygame.transform.scale(pygame.image.load('player_side_run_lfb_rifle.png'), PLAYER_SCALE)
-
-raptor_standing = pygame.transform.scale(pygame.image.load('rap_side_stand.png'), RAPTOR_SCALE)
-raptor_attack = pygame.transform.scale(pygame.image.load('rap_side_attack.png'), RAPTOR_SCALE)
-raptor_dead = pygame.transform.scale(pygame.image.load('rap_dead.png'), RAPTOR_SCALE)
-raptor_run1 = pygame.transform.scale(pygame.image.load('rap_side_run1.png'), RAPTOR_SCALE)
-raptor_run2 = pygame.transform.scale(pygame.image.load('rap_side_run2.png'), RAPTOR_SCALE)
-raptor_run3 = pygame.transform.scale(pygame.image.load('rap_side_run3.png'), RAPTOR_SCALE)
-raptor_run4 = pygame.transform.scale(pygame.image.load('rap_side_run4.png'), RAPTOR_SCALE)
-raptor_run5 = pygame.transform.scale(pygame.image.load('rap_side_run5.png'), RAPTOR_SCALE)
-raptor_walk1 = raptor_run1
-raptor_walk2 = raptor_run3
-raptor_walk3 = raptor_run4
-
-player_walking = [player_standing, player_walking1, player_walking2]
-player_rifle_walking = [player_rifle_stand, player_rifle_walk1, player_rifle_walk2]
-player_rifle_equip = [player_standing, player_jacket, player_rifle_stand]
-player_rifle_holster = [player_rifle_stand, player_jacket, player_standing]
-
-raptor_walking = [raptor_standing, raptor_walk1, raptor_walk2, raptor_walk3]
-raptor_running = [raptor_standing, raptor_run1, raptor_run2, raptor_run3, raptor_run4, raptor_run5]
-raptor_attack = [raptor_standing, raptor_standing, raptor_attack]
-raptor_dead_list = [raptor_dead, raptor_dead]
 
 # for x in xrange (1, 6):
 #    raptor_images.append(pygame.image.load('rap_side_run%i.png'%x))
@@ -75,11 +40,11 @@ centre_tile = ()
 
 def check_rifle_equipped(asset):
     """checks for end of rifle equip animation and sets the subsequent image_list"""
-    if asset.image_list == player_rifle_equip and asset.animation_frame == 2:  # final animation frame
-        asset.image_list = player_rifle_walking
+    if asset.image_list == load.player_rifle_equip and asset.animation_frame == 2:  # final animation frame
+        asset.image_list = load.player_rifle_walking
         player.equip_rifle_animation = False
-    if asset.image_list == player_rifle_holster and asset.animation_frame == 2:  # final animation frame
-        asset.image_list = player_walking
+    if asset.image_list == load.player_rifle_holster and asset.animation_frame == 2:  # final animation frame
+        asset.image_list = load.player_walking
         player.equip_rifle_animation = False
 
 
@@ -127,12 +92,12 @@ class Map:
         self.x += -PLAYER_SPEED
 
     def wall_blit(self,tile_x,tile_y):
-        WINDOW.blit(tile_wall, (tile_x + self.x, self.y + tile_y))
-        collision = pygame.Rect((tile_x + self.x, self.y + tile_y),(tile_size, tile_size) )
+        WINDOW.blit(load.tile_wall, (tile_x + self.x, self.y + tile_y))
+        collision = pygame.Rect((tile_x + self.x, self.y + tile_y),(load.tile_size, load.tile_size) )
         self.list.append(collision)
 
     def floor_blit(self,tile_x, tile_y):
-        WINDOW.blit(tile_floor, (tile_x + self.x, tile_y + self.y))
+        WINDOW.blit(load.tile_floor, (tile_x + self.x, tile_y + self.y))
 
     def update_map(self):
         tile_y = 0
@@ -140,14 +105,14 @@ class Map:
         map_d = {0: self.floor_blit, 1: self.wall_blit, 2: 0, 9: 0,}
         for tile in self.map_array:
             if tile == 2:
-                tile_y += tile_size
+                tile_y += load.tile_size
                 tile_x = 0
             elif tile == 9:
-                tile_x += tile_size
+                tile_x += load.tile_size
             else:
                 command = map_d[tile]
                 command(tile_x, tile_y)
-                tile_x += tile_size
+                tile_x += load.tile_size
 
             """find centre tile (x, y)
             for i in xrange(centre_tile[0]-1, centre_tile[0]+1):
@@ -183,7 +148,7 @@ class Actor:
         self.image = self.image_list[0]
         self.look_left = True
         self.moving = True
-        self.rect = pygame.Rect(self.x, self.y, 3 * RAPTOR_SCALE[0], 3 * RAPTOR_SCALE[1])
+        self.rect = pygame.Rect(self.x, self.y, 3 * load.RAPTOR_SCALE[0], 3 * load.RAPTOR_SCALE[1])
 
     def standing(self):
         self.keyframe = 0
@@ -203,7 +168,7 @@ class Bullet:
     def fire_bullet(self):
         bullets.append(Bullet((WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), (normalised_x, normalised_y)))
 
-        enemies[enemies.__len__() - 1].image_list = raptor_dead_list
+        enemies[enemies.__len__() - 1].image_list = load.raptor_dead_list
 
     def move_bullet(self, i, enemies):
         self.x += self.direction[0] * bullet_speed
@@ -212,7 +177,7 @@ class Bullet:
             bullets.pop(i)
         for j in xrange(0, enemies.__len__() - 1):
             if self.rect.colliderect(enemies[j].rect):
-                enemies[j].image_list = raptor_dead_list
+                enemies[j].image_list = load.raptor_dead_list
                 enemies[j].moving = False
 
     def update_collider(self):
@@ -232,10 +197,10 @@ class Player(Actor):
     def equip_weapon(self):
         """toggles equip/holster image list and starts the animation"""
         self.equip_rifle_animation = True
-        if self.image_list == player_walking:
-            self.image_list = player_rifle_equip
-        elif self.image_list == player_rifle_walking:
-            self.image_list = player_rifle_holster
+        if self.image_list == load.player_walking:
+            self.image_list = load.player_rifle_equip
+        elif self.image_list == load.player_rifle_walking:
+            self.image_list = load.player_rifle_holster
 
 
 class Raptor(Actor):
@@ -244,10 +209,10 @@ class Raptor(Actor):
     def __init__(self, image_list, x, y):
         Actor.__init__(self, image_list, x, y)
         self.attacking = False
-        self.rect = pygame.Rect(self.x, self.y, 3 * RAPTOR_SCALE[0], 3 * RAPTOR_SCALE[1])
+        self.rect = pygame.Rect(self.x, self.y, 3 * load.RAPTOR_SCALE[0], 3 * load.RAPTOR_SCALE[1])
 
     def advance(self, player_position, level_map):
-        self.rect = pygame.Rect(self.x, self.y, RAPTOR_SCALE[0], RAPTOR_SCALE[1])
+        self.rect = pygame.Rect(self.x, self.y, load.RAPTOR_SCALE[0], load.RAPTOR_SCALE[1])
 
         difference_x = player_position[0] - self.x - level_map.x
         difference_y = player_position[1] - self.y - level_map.y
@@ -261,7 +226,7 @@ class Raptor(Actor):
         else:
             # initiate attacking
             self.attacking = True
-            self.image_list = raptor_attack
+            self.image_list = load.raptor_attack
 
         if difference_x < 0:
             self.look_left = True
@@ -272,10 +237,10 @@ class Raptor(Actor):
         patrol_path = finish_point - start_point
 
 # initiate enemy list
-enemies = [Raptor(raptor_running, WINDOW_WIDTH, WINDOW_HEIGHT / 2)]
+enemies = [Raptor(load.raptor_running, WINDOW_WIDTH, WINDOW_HEIGHT / 2)]
 
 # create player
-player = Player(player_walking, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
+player = Player(load.player_walking, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
 
 # create map
 level_map = Map(200, -470)
@@ -319,7 +284,7 @@ while True:
 
     # check timer to spawn   need to put into a function. Actually this is just for demo
     if spawn_timer == spawn_time:
-        enemies.append(Raptor(raptor_running, random.randint(0, WINDOW_WIDTH), random.randint(0, WINDOW_HEIGHT)))
+        enemies.append(Raptor(load.raptor_running, random.randint(0, WINDOW_WIDTH), random.randint(0, WINDOW_HEIGHT)))
         spawn_timer = 0
         if score - last_milestone == 10:
             print('up a level')
@@ -352,7 +317,7 @@ while True:
     for i in xrange(0, enemies.__len__()):
         WINDOW.blit(enemies[i].image, (enemies[i].x + level_map.x, enemies[i].y + level_map.y))
     player.image = animator(player)
-    WINDOW.blit(face_player_towards_cursor(player.x, mouse_position[0]), (player.x - (PLAYER_SCALE[0] / 2), player.y))  # blit position is adjusted to centre of image instead of top left corner
+    WINDOW.blit(face_player_towards_cursor(player.x, mouse_position[0]), (player.x - (load.PLAYER_SCALE[0] / 2), player.y))  # blit position is adjusted to centre of image instead of top left corner
 
     for i in xrange(0, bullets.__len__()-1):
         bullets[i].move_bullet(i, enemies)
