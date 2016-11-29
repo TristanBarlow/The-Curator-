@@ -3,8 +3,8 @@ from pygame.locals import *
 
 pygame.init()
 
-WINDOW_WIDTH = 1600
-WINDOW_HEIGHT = 1200
+WINDOW_WIDTH = 800
+WINDOW_HEIGHT = 600
 
 WINDOW = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 
@@ -125,10 +125,6 @@ class Map:
             """
             Return the rectangle colliding with rather than,
             bool
-
-
-
-
             """
 
     def update_collider(self,last_key):
@@ -293,7 +289,7 @@ class PatrollingRaptor(Raptor):
 # initiate enemy list
 patrolling_enemies = [PatrollingRaptor(load.raptor_walking, raptor_patrol_positions_one, patrol_speed_one, raptor_patrol_positions_one[0][0], raptor_patrol_positions_one[0][1]),
                       PatrollingRaptor(load.raptor_walking, raptor_patrol_positions_two, patrol_speed_two, raptor_patrol_positions_two[0][0], raptor_patrol_positions_two[0][1])]
-enemies = [Raptor(load.raptor_running, 1000, 150)] # WINDOW_WIDTH, WINDOW_HEIGHT / 2)]
+enemies = []#[Raptor(load.raptor_running, 1000, 150)] # WINDOW_WIDTH, WINDOW_HEIGHT / 2)]
 
 # create player
 player = Player(load.player_walking, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
