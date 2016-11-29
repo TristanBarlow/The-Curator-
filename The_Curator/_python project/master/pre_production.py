@@ -209,11 +209,12 @@ class Raptor(Actor):
     def __init__(self, image_list, x, y):
         Actor.__init__(self, image_list, x, y)
         self.attacking = False
-        self.rect = pygame.Rect(self.x, self.y, 3 * load.RAPTOR_SCALE[0], 3 * load.RAPTOR_SCALE[1])
+        self.rect = pygame.Rect(self.x, self.y,load.RAPTOR_SCALE[0],load.RAPTOR_SCALE[1])
+
+    def update_collider(self, player_position, level_map):
+        self.rect = pygame.Rect(self.x+level_map.x, self.y+level_map.y, load.RAPTOR_SCALE[0], load.RAPTOR_SCALE[1])
 
     def advance(self, player_position, level_map):
-        self.rect = pygame.Rect(self.x, self.y, load.RAPTOR_SCALE[0], load.RAPTOR_SCALE[1])
-
         difference_x = player_position[0] - self.x - level_map.x
         difference_y = player_position[1] - self.y - level_map.y
 
@@ -278,6 +279,7 @@ while True:
 
     # either advance enemies or attacking animation continues
     for i in xrange(0, enemies.__len__()):
+        enemies[i].update_collider(PLAYER_POSITION,level_map)
         if not enemies[i].attacking:
             enemies[i].advance((PLAYER_POSITION[0], PLAYER_POSITION[1]), level_map)
         enemies[i].image = pygame.transform.flip(animator(enemies[i]), enemies[i].look_left, False)
@@ -295,6 +297,8 @@ while True:
         spawn_timer += 1
     # for i in enemies:
     #     for j in bullets:
+    #         if j.rect.colliderect(i.rect):
+    #             print 'hello'
 
     # controls
     if event.type == pygame.KEYDOWN:
@@ -324,6 +328,8 @@ while True:
         bullets[i].move_bullet(i, enemies)
         bullets[i].update_collider()
         bullets[i].draw_bullet()
+
+
 
     pygame.display.update()
 
