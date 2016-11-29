@@ -29,9 +29,10 @@ player_rect = pygame.Rect(PLAYER_SPRITE_POS, REAL_PLAYER_SIZE)
 RAPTOR_SPEED = 7
 RAPTOR_ATTACK_DISTANCE = 20
 ANIMATION_FRAME_STEP = 10
+player_health = 100
 bullets = []
 bullet_size = 10
-bullet_speed = 10
+bullet_speed = 100
 bullet_colour = 0, 0, 0
 PLAYER_POSITION = (WINDOW_WIDTH/2, WINDOW_HEIGHT/2)
 centre_tile = ()
@@ -175,10 +176,16 @@ class Bullet:
         self.y += self.direction[1] * bullet_speed
         if self.x < 0 or self.x > WINDOW_WIDTH or self.y < 0 or self.y > WINDOW_HEIGHT:
             bullets.pop(i)
-        for j in xrange(0, enemies.__len__() - 1):
-            if self.rect.colliderect(enemies[j].rect):
-                enemies[j].image_list = load.raptor_dead_list
-                enemies[j].moving = False
+
+        for j in enemies:
+            if self.rect.colliderect(j.rect):
+                j.health -= 25
+                if j.health < 0:
+                    j.image_list = load.raptor_dead_list
+                    j.moving = False
+                    j.health = 0
+
+
 
     def update_collider(self):
         self.rect = pygame.Rect(self.x, self.y, bullet_size, bullet_size)
@@ -210,9 +217,14 @@ class Raptor(Actor):
         Actor.__init__(self, image_list, x, y)
         self.attacking = False
         self.rect = pygame.Rect(self.x, self.y,load.RAPTOR_SCALE[0],load.RAPTOR_SCALE[1])
+        self.health = 100
 
     def update_collider(self, player_position, level_map):
         self.rect = pygame.Rect(self.x+level_map.x, self.y+level_map.y, load.RAPTOR_SCALE[0], load.RAPTOR_SCALE[1])
+
+    def health_bar(self, level_map):
+        pygame.draw.rect(WINDOW, (255, 0, 0), (self.x+level_map.x, self.y + level_map.y,self.health,5))
+        return self.health_bar
 
     def advance(self, player_position, level_map):
         difference_x = player_position[0] - self.x - level_map.x
@@ -295,10 +307,6 @@ while True:
             last_milestone = score
     else:
         spawn_timer += 1
-    # for i in enemies:
-    #     for j in bullets:
-    #         if j.rect.colliderect(i.rect):
-    #             print 'hello'
 
     # controls
     if event.type == pygame.KEYDOWN:
@@ -320,6 +328,7 @@ while True:
 
 
     for i in xrange(0, enemies.__len__()):
+        enemies[i].health_bar(level_map)
         WINDOW.blit(enemies[i].image, (enemies[i].x + level_map.x, enemies[i].y + level_map.y))
     player.image = animator(player)
     WINDOW.blit(face_player_towards_cursor(player.x, mouse_position[0]), (player.x - (load.PLAYER_SCALE[0] / 2), player.y))  # blit position is adjusted to centre of image instead of top left corner
