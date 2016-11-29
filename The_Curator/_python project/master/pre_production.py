@@ -152,12 +152,16 @@ class Actor:
         self.image = self.image_list[0]
         self.look_left = True
         self.moving = True
+        self.health = 100
 
     def standing(self):
         self.keyframe = 0
         # so when the animation sequence starts it begins from the first frame
         self.animation_frame = 1
         self.image = self.image_list[0]
+
+    def health_bar(self, level_map):
+        pygame.draw.rect(WINDOW, (255, 0, 0), (self.x+level_map.x, self.y + level_map.y,self.health,5))
 
 
 class Bullet:
@@ -219,14 +223,9 @@ class Raptor(Actor):
         Actor.__init__(self, image_list, x, y)
         self.attacking = False
         self.rect = pygame.Rect(self.x, self.y,load.RAPTOR_SCALE[0],load.RAPTOR_SCALE[1])
-        self.health = 100
 
     def update_collider(self, player_position, level_map):
         self.rect = pygame.Rect(self.x+level_map.x, self.y+level_map.y, load.RAPTOR_SCALE[0], load.RAPTOR_SCALE[1])
-
-    def health_bar(self, level_map):
-        pygame.draw.rect(WINDOW, (255, 0, 0), (self.x+level_map.x, self.y + level_map.y,self.health,5))
-        return self.health_bar
 
     def advance(self, player_position, level_map):
         difference_x = player_position[0] - self.x - level_map.x
@@ -336,7 +335,8 @@ while True:
         WINDOW.blit(animator(raptor),(raptor.x + level_map.x, raptor.y + level_map.y))
 
     for i in xrange(0, enemies.__len__()):
-        enemies[i].health_bar(level_map)
+        if enemies[i].health > 0:
+            enemies[i].health_bar(level_map)
         WINDOW.blit(enemies[i].image, (enemies[i].x + level_map.x, enemies[i].y + level_map.y))
     player.image = animator(player)
     WINDOW.blit(face_player_towards_cursor(player.x, mouse_position[0]), (player.x - (load.PLAYER_SCALE[0] / 2), player.y))  # blit position is adjusted to centre of image instead of top left corner
@@ -345,6 +345,8 @@ while True:
         bullets[i].move_bullet(i, enemies)
         bullets[i].update_collider()
         bullets[i].draw_bullet()
+
+    player.health_bar(level_map)
 
     pygame.display.update()
 
