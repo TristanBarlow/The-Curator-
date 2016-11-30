@@ -38,6 +38,7 @@ bullet_speed = 100
 bullet_colour = 0, 0, 0
 PLAYER_POSITION = (WINDOW_WIDTH/2, WINDOW_HEIGHT/2)
 centre_tile = ()
+level_1 = True
 
 raptor_patrol_positions_one = [(500, 200), (500, 1200)]
 raptor_patrol_positions_two = [(1000, 700), (1500, 700), (1500, 100), (1000, 100)]
@@ -83,9 +84,13 @@ class Map:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.list = []
+        self.wall_list = []
         self.speed = 4
-        self.map_array = map.map_array
+        if level_1:
+            self.map_array = map.map_array_sneak
+        else:
+            self.map_array = map.map_array_swarm
+
 
     def move_up(self):
         self.y += self.speed
@@ -101,8 +106,8 @@ class Map:
 
     def wall_blit(self,tile_x,tile_y):
         WINDOW.blit(load.tile_wall, (tile_x + self.x, self.y + tile_y))
-        collision = pygame.Rect((tile_x + self.x, self.y + tile_y),(load.tile_size, load.tile_size) )
-        self.list.append(collision)
+        collision = pygame.Rect((tile_x + self.x, self.y + tile_y),(load.tile_size, load.tile_size))
+        self.wall_list.append(collision)
 
     def floor_blit(self,tile_x, tile_y):
         WINDOW.blit(load.tile_floor, (tile_x + self.x, tile_y + self.y))
@@ -128,9 +133,8 @@ class Map:
             """
 
     def update_collider(self,last_key):
-        for i in self.list:
+        for i in self.wall_list:
             if player_rect.colliderect(i):
-                print 'hello'
                 if last_key == 'w':
                     self.y += -self.speed
                 if last_key == 'a':
@@ -141,7 +145,7 @@ class Map:
                     self.x += self.speed
                 else:
                     pass
-        self.list = []
+        self.wall_list = []
 
 
 class Actor:
