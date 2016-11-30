@@ -9,7 +9,7 @@ WINDOW_HEIGHT = 600
 WINDOW = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 
 #TITLE SCREEN LOOP set 4th argument to False to not get title screen.
-titlescreen.TitleScreen(WINDOW,WINDOW_WIDTH,WINDOW_HEIGHT,True)
+Title_Choice = titlescreen.TitleScreen(WINDOW,WINDOW_WIDTH,WINDOW_HEIGHT,True)
 #WHEN TITLE SCREEN ENDS IT CONTINUES
 
 mouse_position = (WINDOW_WIDTH, WINDOW_HEIGHT)
@@ -25,10 +25,7 @@ REAL_PLAYER_SIZE = (40, 90)
 player_rect = pygame.Rect(PLAYER_SPRITE_POS, REAL_PLAYER_SIZE)
 
 
-# for x in xrange (1, 6):
-#    raptor_images.append(pygame.image.load('rap_side_run%i.png'%x))
 
-RAPTOR_SPEED = 7
 RAPTOR_ATTACK_DISTANCE = 20
 ANIMATION_FRAME_STEP = 10
 player_health = 100
@@ -38,7 +35,7 @@ bullet_speed = 100
 bullet_colour = 0, 0, 0
 PLAYER_POSITION = (WINDOW_WIDTH/2, WINDOW_HEIGHT/2)
 centre_tile = ()
-level_1 = True
+
 
 raptor_patrol_positions_one = [(500, 200), (500, 1200)]
 raptor_patrol_positions_two = [(1000, 700), (1500, 700), (1500, 100), (1000, 100)]
@@ -86,10 +83,7 @@ class Map:
         self.y = y
         self.wall_list = []
         self.speed = 4
-        if level_1:
-            self.map_array = map.map_array_sneak
-        else:
-            self.map_array = map.map_array_swarm
+        self.level_1 = Title_Choice
 
 
     def move_up(self):
@@ -113,6 +107,10 @@ class Map:
         WINDOW.blit(load.tile_floor, (tile_x + self.x, tile_y + self.y))
 
     def update_map(self):
+        if self.level_1:
+            self.map_array = map.map_array_sneak
+        else:
+            self.map_array = map.map_array_swarm
         tile_y = 0
         tile_x = 0
         map_d = {0: self.floor_blit, 1: self.wall_blit, 2: 0, 9: 0,}
@@ -147,6 +145,11 @@ class Map:
                     pass
         self.wall_list = []
 
+    def level_copmlete(self):
+        if self.x < -600 and self.x > -750:         # Rough x of map end
+            if self.y <-2850 and self.y > -2950:    # Rough y of map end
+                print 'hello'
+                self.level_1 = False                # Ends level_1
 
 class Actor:
     """Super class for shared fields of player and raptor"""
@@ -160,6 +163,8 @@ class Actor:
         self.look_left = True
         self.moving = True
         self.health = 100
+        self.dead = False
+
 
     def standing(self):
         self.keyframe = 0
@@ -197,6 +202,8 @@ class Bullet:
                     j.image_list = load.raptor_dead_list
                     j.moving = False
                     j.health = 0
+                    j.dead = True
+
 
 
 
@@ -235,27 +242,26 @@ class Raptor(Actor):
         self.rect = pygame.Rect(self.x+level_map.x, self.y+level_map.y, load.RAPTOR_SCALE[0], load.RAPTOR_SCALE[1])
 
     def advance(self, player_position, level_map, player_health):
+        RAPTOR_SPEED = 7
         difference_x = player_position[0] - self.x - level_map.x
         difference_y = player_position[1] - self.y - level_map.y
-
+        if self.attacking:
+            RAPTOR_SPEED = 2
         # stop divide by zero error
-        if math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))) > RAPTOR_ATTACK_DISTANCE:
-            normalised_x = difference_x / (math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))))
-            normalised_y = difference_y / (math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))))
-            self.x += normalised_x * RAPTOR_SPEED
-            self.y += normalised_y * RAPTOR_SPEED
-            self.attacking = False
-        else:
-            # initiate attacking
-            self.attacking = True
-            player_health -= 10
-            self.image_list = load.raptor_attack
+        if not self.dead:
+            if math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))) > RAPTOR_ATTACK_DISTANCE:
+                normalised_x = difference_x / (math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))))
+                normalised_y = difference_y / (math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))))
+                self.x += normalised_x * RAPTOR_SPEED
+                self.y += normalised_y * RAPTOR_SPEED
+            else:
+                self.attacking = True
+                self.image_list = load.raptor_attack
 
-
-        if difference_x < 0:
-            self.look_left = True
-        else:
-            self.look_left = False
+            if difference_x < 0:
+                self.look_left = True
+            else:
+                self.look_left = False
 
         return player_health
 
@@ -352,32 +358,31 @@ while True:
     elif not player.equip_rifle_animation:
         player.moving = False
 
-    # check timer to spawn   need to put into a function. Actually this is just for demo
-#    if spawn_timer == spawn_time:
-#        enemies.append(Raptor(load.raptor_running, random.randint(0, WINDOW_WIDTH), random.randint(0, WINDOW_HEIGHT)))
-#        spawn_timer = 0
-#        if score - last_milestone == 10:
-#            print('up a level')
-#            level += 1
-#            spawn_time += -15
-#            last_milestone = score
-#    else:
-#        spawn_timer += 1
+    # check timer to spawn need to put into a function. Provided level 1 is complete
+    if not level_map.level_1:
+        if spawn_timer == spawn_time:
+           enemies.append(Raptor(load.raptor_running, random.randint(0, WINDOW_WIDTH), random.randint(0, WINDOW_HEIGHT)))
+           spawn_timer = 0
+
+        else:
+           spawn_timer += 1
 
     level_map.update_collider(key_pressed)
     level_map.update_map()
 
-    for raptor in patrolling_enemies:
-        raptor.patrol()
-        WINDOW.blit(animator(raptor),(raptor.x + level_map.x, raptor.y + level_map.y))
+    if level_map.level_1:
+        for raptor in patrolling_enemies:
+            raptor.patrol()
+            WINDOW.blit(animator(raptor),(raptor.x + level_map.x, raptor.y + level_map.y))
 
-        # either advance enemies or attacking animation continues
+     # either advance enemies or attacking animation continues
 
 
     for enemy in enemies:
         enemy.update_collider(PLAYER_POSITION, level_map)
-        if not enemy.attacking:
-            player_health = enemy.advance((PLAYER_POSITION[0], PLAYER_POSITION[1]), level_map, player_health)
+        if enemy.rect.colliderect(player_rect) and not enemy.dead:
+            player_health -= 1
+        player_health = enemy.advance((PLAYER_POSITION[0], PLAYER_POSITION[1]), level_map, player_health)
         enemy.image = pygame.transform.flip(animator(enemy), enemy.look_left, False)
         if enemy.health > 0:
             enemy.health_bar(level_map)
@@ -394,9 +399,11 @@ while True:
         i.draw_bullet()
         counter += 1
 
+    level_map.level_copmlete()
+
     pygame.draw.rect(WINDOW, (255, 0, 0), (0,20, player_health*2, 10))
 
     pygame.display.update()
-
     clock = pygame.time.Clock()
-    clock.tick(240)
+    clock.tick(120)
+

@@ -15,8 +15,10 @@ def TitleScreen(WINDOW,WINDOW_WIDTH,WINDOW_HEIGHT,Bool):
         textColor = (255,255,255)
         mouseOverColor = (0,0,0)
         myfont = pygame.font.SysFont("Helvetica", 35, bold=True)
-        label = myfont.render("Play", 1, textColor)
-        label_mouseover = myfont.render("Play", 1, mouseOverColor)
+        label = myfont.render("Play Level 1", 1, textColor)
+        label_mouseover = myfont.render("Play Level 1", 1, mouseOverColor)
+        label_2 = myfont.render("Play Level 2", 1, textColor)
+        label_mouseover_2 = myfont.render("Play Level 2", 1, mouseOverColor)
         label_width = label.get_rect().width
         label_height = label.get_rect().height
         label_center = label_width / 2
@@ -26,15 +28,28 @@ def TitleScreen(WINDOW,WINDOW_WIDTH,WINDOW_HEIGHT,Bool):
         MOUSE_POS = pygame.mouse.get_pos()
         # Split the date into x and y coordinates
         mouse_x, mouse_y = MOUSE_POS
-        if center_width < mouse_x < center_width + label_width and center_height < mouse_y < center_height + label_height:
+        if center_width < mouse_x < center_width + label_width and\
+                                center_height < mouse_y < center_height + label_height:
             WINDOW.blit(label_mouseover, (center_width, center_height))
         else:
             WINDOW.blit(label, (center_width,center_height))
 
-        if pygame.event.get(MOUSEBUTTONDOWN) and \
-                center_width < mouse_x < center_width + label_width and \
-                center_height < mouse_y < center_height + label_height:
-            Menu = False
+        if center_width < mouse_x < center_width + label_width and\
+                                        center_height+100 < mouse_y < center_height + label_height +100:
+            WINDOW.blit(label_mouseover_2, (center_width, center_height+100))
+        else:
+            WINDOW.blit(label_2, (center_width,center_height+100))
+
+        if pygame.event.get(MOUSEBUTTONDOWN):
+            if center_width < mouse_x < center_width + label_width and\
+                                            center_height+100 < mouse_y < center_height + label_height +100:
+                Level_1 = False
+                Menu = False
+            if center_width < mouse_x < center_width + label_width and\
+                                    center_height < mouse_y < center_height + label_height:
+                Level_1 = True
+                Menu = False
+
 
 
         pygame.display.update()
@@ -43,4 +58,4 @@ def TitleScreen(WINDOW,WINDOW_WIDTH,WINDOW_HEIGHT,Bool):
                 pygame.quit()
                 sys.exit()
 
-    return 0
+    return Level_1
