@@ -374,7 +374,6 @@ while True:
         for raptor in patrolling_enemies:
             raptor.patrol()
             WINDOW.blit(animator(raptor),(raptor.x + level_map.x, raptor.y + level_map.y))
-
      # either advance enemies or attacking animation continues
 
 
@@ -382,6 +381,9 @@ while True:
         enemy.update_collider(PLAYER_POSITION, level_map)
         if enemy.rect.colliderect(player_rect) and not enemy.dead:
             player_health -= 1
+            if player_health < 0:
+                player.dead = True
+
         player_health = enemy.advance((PLAYER_POSITION[0], PLAYER_POSITION[1]), level_map, player_health)
         enemy.image = pygame.transform.flip(animator(enemy), enemy.look_left, False)
         if enemy.health > 0:
@@ -403,6 +405,8 @@ while True:
 
     pygame.draw.rect(WINDOW, (255, 0, 0), (0,20, player_health*2, 10))
 
+    if player.dead:
+        print'you are dead, there should be a death screen!!'
     pygame.display.update()
     clock = pygame.time.Clock()
     clock.tick(120)
