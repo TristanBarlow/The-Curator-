@@ -12,7 +12,6 @@ WINDOW = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 class Map:
     """ This class Handles movement, map generation, colliders and checks whether the
     player has completed the map."""
-
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -207,6 +206,9 @@ class Player(Actor):
             if self.image_list == load.player_rifle_holster:
                 self.image_list = load.player_walking
                 player.equip_rifle_animation = False
+
+    def refill_health(self):
+        self.health = 100
 
 
 class Raptor(Actor):
@@ -443,7 +445,8 @@ while True:
                 's': level_map.move_down,
                 'a': level_map.move_left,
                 'd': level_map.move_right,
-                'e': player.equip_weapon}
+                'e': player.equip_weapon,
+                'q': player.refill_health}
 
     # TITLE SCREEN LOOP set 4th argument to False to not get title screen.
     level_map.level_1 = title_screen.title_screen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT, True)
