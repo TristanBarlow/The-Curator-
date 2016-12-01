@@ -1,4 +1,4 @@
-import pygame, sys, time, random, math, map, load, titlescreen
+import pygame, sys, time, random, math, map, load, titlescreen, DeathScreen
 from pygame.locals import *
 
 pygame.init()
@@ -8,9 +8,7 @@ WINDOW_HEIGHT = 600                                                             
 
 WINDOW = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 
-#TITLE SCREEN LOOP set 4th argument to False to not get title screen.
-Title_Choice = titlescreen.TitleScreen(WINDOW,WINDOW_WIDTH,WINDOW_HEIGHT,True)
-#WHEN TITLE SCREEN ENDS IT CONTINUES
+
 
 class Map:
     '''
@@ -22,9 +20,9 @@ class Map:
         self.y = y
         self.wall_list = []
         self.speed = 4
-        self.level_1 = Title_Choice
-        self.end_tile_x = None
-        self.end_tile_y = None
+        self.level_1 = None
+        self.end_tile_x = x
+        self.end_tile_y = y
         self.map_array = None
 
     def move_up(self):
@@ -280,122 +278,143 @@ patrol_speed_one = 200
 patrol_speed_two = 100
 patrolling_enemies = [PatrollingRaptor(load.raptor_walking, raptor_patrol_positions_one, patrol_speed_one, raptor_patrol_positions_one[0][0], raptor_patrol_positions_one[0][1]),
                       PatrollingRaptor(load.raptor_walking, raptor_patrol_positions_two, patrol_speed_two, raptor_patrol_positions_two[0][0], raptor_patrol_positions_two[0][1])]
-enemies = []#[Raptor(load.raptor_running, 1000, 150)] # WINDOW_WIDTH, WINDOW_HEIGHT / 2)]
 
-# create map
-level_map = Map(200, -470)
-
-# create player
-player = Player(load.player_walking, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
-
-
-
-#creates bullet list
-bullets = []
-# Controls dictionary
-controls = {'w': level_map.move_up,
-            's': level_map.move_down,
-            'a': level_map.move_left,
-            'd': level_map.move_right,
-            'e': player.equip_weapon}
 
 print 'wasd controls, e to equip/holster weapon, player faces mouse cursor'
 
-mouse_position = (0,0)
-key_pressed = None
-next_control = None
-spawn_timer = 0
-spawn_time = 150
+
+
+
+
+def game_loop():
+    mouse_position = (0, 0)
+    key_pressed = None
+    next_control = None
+    spawn_timer = 0
+    spawn_time = 150
+
+    while not player.dead:
+        WINDOW.fill((100, 100, 100))
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.MOUSEMOTION:
+                pygame.mouse.set_cursor(*pygame.cursors.broken_x)
+                mouse_position = pygame.mouse.get_pos()
+
+            if event.type == pygame.MOUSEBUTTONDOWN and player.image_list == load.player_rifle_walking:
+                mouse_delta_x = mouse_position[0] - player.x
+                mouse_delta_y = mouse_position[1] - player.y
+
+                normalised_x = mouse_delta_x / (math.sqrt((math.pow(mouse_delta_x, 2) + math.pow(mouse_delta_y, 2))))
+                normalised_y = mouse_delta_y / (math.sqrt((math.pow(mouse_delta_x, 2) + math.pow(mouse_delta_y, 2))))
+
+                bullets.append(Bullet((player.x,player.y), (normalised_x, normalised_y)))
+
+            # controls
+            if event.type == pygame.KEYDOWN:
+                key_pressed = pygame.key.name(event.key)
+                if key_pressed in controls:
+                    player.moving = True
+                    next_control = controls[key_pressed]
+            elif event.type == pygame.KEYUP:
+                next_control = None
+
+        #controls to run every frame
+        if next_control != None:
+            next_control()
+        # to allow rifle equip animation without interruption
+        elif not player.equip_rifle_animation:
+            player.moving = False
+
+        # check timer to spawn need to put into a function. Provided level 1 is complete
+        if not level_map.level_1:
+            if spawn_timer == spawn_time:
+               enemies.append(Raptor(load.raptor_running, random.randint(0, WINDOW_WIDTH), random.randint(0, WINDOW_HEIGHT)))
+               spawn_timer = 0
+
+            else:
+               spawn_timer += 1
+
+        level_map.update_collider(key_pressed)
+        level_map.update_map()
+
+        if level_map.level_1:
+            for raptor in patrolling_enemies:
+                raptor.patrol()
+                WINDOW.blit(Actor.animator(raptor),(raptor.x + level_map.x, raptor.y + level_map.y))
+
+        for enemy in enemies:
+            enemy.update_collider(level_map)
+            if enemy.rect.colliderect(player.rect) and not enemy.dead:
+                player.health -= 1
+                if player.health < 0:
+                    player.dead = True
+
+            enemy.advance((player.x, player.y), level_map)
+            enemy.image = pygame.transform.flip(Actor.animator(enemy), enemy.look_left, False)
+            if enemy.health > 0:
+                enemy.health_bar(level_map)
+            WINDOW.blit(enemy.image,(enemy.x + level_map.x, enemy.y+level_map.y))
+
+
+
+        player.image = Actor.animator(player)
+        if player.face_player_towards_cursor(mouse_position[0]):
+            WINDOW.blit(pygame.transform.flip(player.image, True, False), (player.x,player.y))
+        else:
+            WINDOW.blit(player.image,(player.x,player.y))
+
+
+        #Bullet stuff
+        counter = 0
+        for i in bullets:
+            i.move_bullet(counter, enemies)
+            i.update_collider()
+            i.draw_bullet()
+            counter += 1
+
+        level_map.level_copmlete()
+
+        pygame.draw.rect(WINDOW, (255, 0, 0), (0,20, player.health*2, 10))
+
+        pygame.display.update()
+        clock = pygame.time.Clock()
+        clock.tick(120)
+    return True
+
+
+
 while True:
-    WINDOW.fill((100, 100, 100))
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
+    enemies = []
 
-        if event.type == pygame.MOUSEMOTION:
-            pygame.mouse.set_cursor(*pygame.cursors.broken_x)
-            mouse_position = pygame.mouse.get_pos()
+    # create map
+    level_map = Map(200, -470)
 
-        if event.type == pygame.MOUSEBUTTONDOWN and player.image_list == load.player_rifle_walking:
-            mouse_delta_x = mouse_position[0] - player.x
-            mouse_delta_y = mouse_position[1] - player.y
+    # create player
+    player = Player(load.player_walking, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
 
-            normalised_x = mouse_delta_x / (math.sqrt((math.pow(mouse_delta_x, 2) + math.pow(mouse_delta_y, 2))))
-            normalised_y = mouse_delta_y / (math.sqrt((math.pow(mouse_delta_x, 2) + math.pow(mouse_delta_y, 2))))
+    # creates bullet list
+    bullets = []
 
-            bullets.append(Bullet((player.x,player.y), (normalised_x, normalised_y)))
-
-        # controls
-        if event.type == pygame.KEYDOWN:
-            key_pressed = pygame.key.name(event.key)
-            if key_pressed in controls:
-                player.moving = True
-                next_control = controls[key_pressed]
-        elif event.type == pygame.KEYUP:
-            next_control = None
-
-    #controls to run every frame
-    if next_control != None:
-        next_control()
-    # to allow rifle equip animation without interruption
-    elif not player.equip_rifle_animation:
-        player.moving = False
-
-    # check timer to spawn need to put into a function. Provided level 1 is complete
-    if not level_map.level_1:
-        if spawn_timer == spawn_time:
-           enemies.append(Raptor(load.raptor_running, random.randint(0, WINDOW_WIDTH), random.randint(0, WINDOW_HEIGHT)))
-           spawn_timer = 0
-
-        else:
-           spawn_timer += 1
-
-    level_map.update_collider(key_pressed)
-    level_map.update_map()
-
-    if level_map.level_1:
-        for raptor in patrolling_enemies:
-            raptor.patrol()
-            WINDOW.blit(Actor.animator(raptor),(raptor.x + level_map.x, raptor.y + level_map.y))
-
-    for enemy in enemies:
-        enemy.update_collider(level_map)
-        if enemy.rect.colliderect(player.rect) and not enemy.dead:
-            player.health -= 1
-            if player.health < 0:
-                player.dead = True
-
-        enemy.advance((player.x, player.y), level_map)
-        enemy.image = pygame.transform.flip(Actor.animator(enemy), enemy.look_left, False)
-        if enemy.health > 0:
-            enemy.health_bar(level_map)
-        WINDOW.blit(enemy.image,(enemy.x + level_map.x, enemy.y+level_map.y))
+    # Controls dictionary
+    controls = {'w': level_map.move_up,
+                's': level_map.move_down,
+                'a': level_map.move_left,
+                'd': level_map.move_right,
+                'e': player.equip_weapon}
 
 
+    # TITLE SCREEN LOOP set 4th argument to False to not get title screen.
+    level_map.level_1 = titlescreen.TitleScreen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT, True)
+    # WHEN TITLE SCREEN ENDS IT CONTINUES
+    if game_loop():
+        DeathScreen.death_screen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT, True)
 
-    player.image = Actor.animator(player)
-    if player.face_player_towards_cursor(mouse_position[0]):
-        WINDOW.blit(pygame.transform.flip(player.image, True, False), (player.x,player.y))
-    else:
-        WINDOW.blit(player.image,(player.x,player.y))
-
-
-    #Bullet stuff
-    counter = 0
-    for i in bullets:
-        i.move_bullet(counter, enemies)
-        i.update_collider()
-        i.draw_bullet()
-        counter += 1
-
-    level_map.level_copmlete()
-
-    pygame.draw.rect(WINDOW, (255, 0, 0), (0,20, player.health*2, 10))
-
-    if player.dead:
-        print'you are dead, there should be a death screen!!'
-    pygame.display.update()
-    clock = pygame.time.Clock()
-    clock.tick(120)
 
