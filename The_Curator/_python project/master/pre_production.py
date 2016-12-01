@@ -185,7 +185,6 @@ class Player(Actor):
                 self.image_list = load.player_rifle_holster
 
     def face_player_towards_cursor(self, mouse_x):
-        print self.x
         """checks mouse position against player position and faces player towards cursor"""
         delta_x = mouse_x - self.x
         if delta_x < 0:
