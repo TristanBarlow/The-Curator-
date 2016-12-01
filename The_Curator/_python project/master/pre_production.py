@@ -309,10 +309,6 @@ raptor_patrol_positions_one = [(500, 200), (500, 1200)]
 raptor_patrol_positions_two = [(1000, 700), (1500, 700), (1500, 100), (1000, 100)]
 patrol_speed_one = 200
 patrol_speed_two = 100
-patrolling_enemies = [PatrollingRaptor(load.raptor_walking, raptor_patrol_positions_one, patrol_speed_one,
-                                       raptor_patrol_positions_one[0][0], raptor_patrol_positions_one[0][1]),
-                      PatrollingRaptor(load.raptor_walking, raptor_patrol_positions_two, patrol_speed_two,
-                                       raptor_patrol_positions_two[0][0], raptor_patrol_positions_two[0][1])]
 
 print 'wasd controls, e to equip/holster weapon, player faces mouse cursor'
 
@@ -430,6 +426,10 @@ while True:
             pygame.quit()
             sys.exit()
     enemies = []
+    patrolling_enemies = [PatrollingRaptor(load.raptor_walking, raptor_patrol_positions_one, patrol_speed_one,
+                                           raptor_patrol_positions_one[0][0], raptor_patrol_positions_one[0][1]),
+                          PatrollingRaptor(load.raptor_walking, raptor_patrol_positions_two, patrol_speed_two,
+                                           raptor_patrol_positions_two[0][0], raptor_patrol_positions_two[0][1])]
 
     # create map
     level_map = Map(200, -470)
