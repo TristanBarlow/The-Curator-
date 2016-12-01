@@ -1,20 +1,18 @@
-import pygame, sys, time, random, math, map, load, titlescreen, DeathScreen
+import pygame, sys, time, random, math, map, load, title_screen, death_screen
 from pygame.locals import *
 
 pygame.init()
 
-WINDOW_WIDTH = 800                                                                                                     # DO NOT CHANGE
-WINDOW_HEIGHT = 600                                                                                                    # DO NOT CHANGE
+WINDOW_WIDTH = 800  # DO NOT CHANGE
+WINDOW_HEIGHT = 600  # DO NOT CHANGE
 
 WINDOW = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 
 
-
 class Map:
-    '''
-    This class Handles movement, map generation, colliders and checks whether the
-    player has completed the map.
-    '''
+    """ This class Handles movement, map generation, colliders and checks whether the
+    player has completed the map."""
+
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -37,16 +35,17 @@ class Map:
     def move_right(self):
         self.x += -self.speed
 
-    def wall_blit(self,tile_x,tile_y):
+    def wall_blit(self, tile_x, tile_y):
         WINDOW.blit(load.tile_wall, (tile_x + self.x, self.y + tile_y))
-        collision = pygame.Rect((tile_x + self.x, self.y + tile_y),(load.tile_size, load.tile_size))
+        collision = pygame.Rect((tile_x + self.x, self.y + tile_y), (load.tile_size, load.tile_size))
         self.wall_list.append(collision)
 
-    def floor_blit(self,tile_x, tile_y):
+    def floor_blit(self, tile_x, tile_y):
         WINDOW.blit(load.tile_floor, (tile_x + self.x, tile_y + self.y))
 
-    def end_tile(self,tile_x, tile_y):
-        pygame.draw.rect(WINDOW,(173, 216, 230),((tile_x + self.x, self.y + tile_y),(load.tile_size, load.tile_size)))
+    def end_tile(self, tile_x, tile_y):
+        pygame.draw.rect(WINDOW, (173, 216, 230),
+                         ((tile_x + self.x, self.y + tile_y), (load.tile_size, load.tile_size)))
         self.end_tile_x = tile_x + self.x
         self.end_tile_y = self.y + tile_y
 
@@ -57,7 +56,7 @@ class Map:
             self.map_array = map.map_array_swarm
         tile_y = 0
         tile_x = 0
-        map_d = {0: self.floor_blit, 1: self.wall_blit, 2: 0 ,3: self.end_tile,  9: 0}
+        map_d = {0: self.floor_blit, 1: self.wall_blit, 2: 0, 3: self.end_tile, 9: 0}
         for tile in self.map_array:
             if tile == 2:
                 tile_y += load.tile_size
@@ -69,19 +68,19 @@ class Map:
                 command(tile_x, tile_y)
                 tile_x += load.tile_size
 
-    def update_collider(self,last_key):
-            if player.rect.collidelistall(self.wall_list):
-                if last_key == 'w':
-                    self.y += -self.speed
-                if last_key == 'a':
-                    self.x += -self.speed
-                if last_key == 's':
-                    self.y += self.speed
-                if last_key == 'd':
-                    self.x += self.speed
-                else:
-                    pass
-            self.wall_list = []
+    def update_collider(self, last_key):
+        if player.rect.collidelistall(self.wall_list):
+            if last_key == 'w':
+                self.y += -self.speed
+            if last_key == 'a':
+                self.x += -self.speed
+            if last_key == 's':
+                self.y += self.speed
+            if last_key == 'd':
+                self.x += self.speed
+            else:
+                pass
+        self.wall_list = []
 
     def level_copmlete(self):
         if self.end_tile_x < player.x < self.end_tile_x + load.tile_size:
@@ -91,6 +90,7 @@ class Map:
 
 class Actor:
     """Super class for shared fields of player and raptor"""
+
     def __init__(self, image_list, x, y):
         self.x = x
         self.y = y
@@ -125,7 +125,7 @@ class Actor:
         self.image = self.image_list[0]
 
     def health_bar(self, level_map):
-        pygame.draw.rect(WINDOW, (255, 0, 0), (self.x+ level_map.x, self.y + level_map.y,self.health,5))
+        pygame.draw.rect(WINDOW, (255, 0, 0), (self.x + level_map.x, self.y + level_map.y, self.health, 5))
 
 
 class Bullet:
@@ -143,13 +143,13 @@ class Bullet:
         bullets.append(Bullet((WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), (normalised_x, normalised_y)))
         enemies[enemies.__len__() - 1].image_list = load.raptor_dead_list
 
-    def move_bullet(self,i, enemies):
+    def move_bullet(self, i, enemies_list):
         self.x += self.direction[0] * self.bullet_speed
         self.y += self.direction[1] * self.bullet_speed
         if self.x < 0 or self.x > WINDOW_WIDTH or self.y < 0 or self.y > WINDOW_HEIGHT:
             bullets.pop(i)
 
-        for j in enemies:
+        for j in enemies_list:
             if self.rect.colliderect(j.rect):
                 j.health -= 25
                 if j.health < 0:
@@ -157,9 +157,6 @@ class Bullet:
                     j.moving = False
                     j.health = 0
                     j.dead = True
-
-
-
 
     def update_collider(self):
         self.rect = pygame.Rect(self.x, self.y, self.bullet_size, self.bullet_size)
@@ -175,7 +172,7 @@ class Player(Actor):
         Actor.__init__(self, image_list, x, y)
         self.equip_rifle_animation = False
         self.REAL_PLAYER_SIZE = (40, 90)
-        self.rect = pygame.Rect((self.x +25 ,self.y +5), self.REAL_PLAYER_SIZE)
+        self.rect = pygame.Rect((self.x + 25, self.y + 5), self.REAL_PLAYER_SIZE)
 
     def equip_weapon(self):
         """toggles equip/holster image list and starts the animation"""
@@ -215,12 +212,12 @@ class Raptor(Actor):
         self.attack_distance = 20
         self.raptor_speed = 7
 
-    def update_collider(self, level_map):
-        self.rect = pygame.Rect(self.x+level_map.x, self.y+level_map.y, load.RAPTOR_SCALE[0], load.RAPTOR_SCALE[1])
+    def update_collider(self, map_level):
+        self.rect = pygame.Rect(self.x + map_level.x, self.y + map_level.y, load.RAPTOR_SCALE[0], load.RAPTOR_SCALE[1])
 
-    def advance(self, player_position, level_map):
-        difference_x = player.x - self.x - level_map.x
-        difference_y = player.y - self.y - level_map.y
+    def advance(self, map_level):
+        difference_x = player.x - self.x - map_level.x
+        difference_y = player.y - self.y - map_level.y
 
         # stop divide by zero error
         if not self.dead:
@@ -240,6 +237,7 @@ class Raptor(Actor):
                 self.look_left = True
             else:
                 self.look_left = False
+
 
 class PatrollingRaptor(Raptor):
     def __init__(self, image_list, patrolling_position_list, patrol_speed, x, y):
@@ -263,27 +261,28 @@ class PatrollingRaptor(Raptor):
         if self.next_waypoint == self.patrol_position_list.__len__():
             self.next_waypoint = 0
 
-        patrol_path_x = self.patrol_position_list[self.next_waypoint][0] - self.patrol_position_list[self.patrol_index][0]
-        patrol_path_y = self.patrol_position_list[self.next_waypoint][1] - self.patrol_position_list[self.patrol_index][1]
+        patrol_path_x = self.patrol_position_list[self.next_waypoint][0] - self.patrol_position_list[self.patrol_index][
+            0]
+        patrol_path_y = self.patrol_position_list[self.next_waypoint][1] - self.patrol_position_list[self.patrol_index][
+            1]
         travel_step_x = patrol_path_x / self.patrol_speed
         travel_step_y = patrol_path_y / self.patrol_speed
 
         self.x += travel_step_x
         self.y += travel_step_y
 
+
 # initiate enemy list
 raptor_patrol_positions_one = [(500, 200), (500, 1200)]
 raptor_patrol_positions_two = [(1000, 700), (1500, 700), (1500, 100), (1000, 100)]
 patrol_speed_one = 200
 patrol_speed_two = 100
-patrolling_enemies = [PatrollingRaptor(load.raptor_walking, raptor_patrol_positions_one, patrol_speed_one, raptor_patrol_positions_one[0][0], raptor_patrol_positions_one[0][1]),
-                      PatrollingRaptor(load.raptor_walking, raptor_patrol_positions_two, patrol_speed_two, raptor_patrol_positions_two[0][0], raptor_patrol_positions_two[0][1])]
-
+patrolling_enemies = [PatrollingRaptor(load.raptor_walking, raptor_patrol_positions_one, patrol_speed_one,
+                                       raptor_patrol_positions_one[0][0], raptor_patrol_positions_one[0][1]),
+                      PatrollingRaptor(load.raptor_walking, raptor_patrol_positions_two, patrol_speed_two,
+                                       raptor_patrol_positions_two[0][0], raptor_patrol_positions_two[0][1])]
 
 print 'wasd controls, e to equip/holster weapon, player faces mouse cursor'
-
-
-
 
 
 def game_loop():
@@ -311,7 +310,7 @@ def game_loop():
                 normalised_x = mouse_delta_x / (math.sqrt((math.pow(mouse_delta_x, 2) + math.pow(mouse_delta_y, 2))))
                 normalised_y = mouse_delta_y / (math.sqrt((math.pow(mouse_delta_x, 2) + math.pow(mouse_delta_y, 2))))
 
-                bullets.append(Bullet((player.x,player.y), (normalised_x, normalised_y)))
+                bullets.append(Bullet((player.x, player.y), (normalised_x, normalised_y)))
 
             # controls
             if event.type == pygame.KEYDOWN:
@@ -322,7 +321,7 @@ def game_loop():
             elif event.type == pygame.KEYUP:
                 next_control = None
 
-        #controls to run every frame
+        # controls to run every frame
         if next_control != None:
             next_control()
         # to allow rifle equip animation without interruption
@@ -332,11 +331,12 @@ def game_loop():
         # check timer to spawn need to put into a function. Provided level 1 is complete
         if not level_map.level_1:
             if spawn_timer == spawn_time:
-               enemies.append(Raptor(load.raptor_running, random.randint(0, WINDOW_WIDTH), random.randint(0, WINDOW_HEIGHT)))
-               spawn_timer = 0
+                enemies.append(
+                    Raptor(load.raptor_running, random.randint(0, WINDOW_WIDTH), random.randint(0, WINDOW_HEIGHT)))
+                spawn_timer = 0
 
             else:
-               spawn_timer += 1
+                spawn_timer += 1
 
         level_map.update_collider(key_pressed)
         level_map.update_map()
@@ -344,7 +344,7 @@ def game_loop():
         if level_map.level_1:
             for raptor in patrolling_enemies:
                 raptor.patrol()
-                WINDOW.blit(Actor.animator(raptor),(raptor.x + level_map.x, raptor.y + level_map.y))
+                WINDOW.blit(Actor.animator(raptor), (raptor.x + level_map.x, raptor.y + level_map.y))
 
         for enemy in enemies:
             enemy.update_collider(level_map)
@@ -353,22 +353,19 @@ def game_loop():
                 if player.health < 0:
                     player.dead = True
 
-            enemy.advance((player.x, player.y), level_map)
+            enemy.advance(level_map)
             enemy.image = pygame.transform.flip(Actor.animator(enemy), enemy.look_left, False)
             if enemy.health > 0:
                 enemy.health_bar(level_map)
-            WINDOW.blit(enemy.image,(enemy.x + level_map.x, enemy.y+level_map.y))
-
-
+            WINDOW.blit(enemy.image, (enemy.x + level_map.x, enemy.y + level_map.y))
 
         player.image = Actor.animator(player)
         if player.face_player_towards_cursor(mouse_position[0]):
-            WINDOW.blit(pygame.transform.flip(player.image, True, False), (player.x,player.y))
+            WINDOW.blit(pygame.transform.flip(player.image, True, False), (player.x, player.y))
         else:
-            WINDOW.blit(player.image,(player.x,player.y))
+            WINDOW.blit(player.image, (player.x, player.y))
 
-
-        #Bullet stuff
+        # Bullet stuff
         counter = 0
         for i in bullets:
             i.move_bullet(counter, enemies)
@@ -378,13 +375,12 @@ def game_loop():
 
         level_map.level_copmlete()
 
-        pygame.draw.rect(WINDOW, (255, 0, 0), (0,20, player.health*2, 10))
+        pygame.draw.rect(WINDOW, (255, 0, 0), (0, 20, player.health * 2, 10))
 
         pygame.display.update()
         clock = pygame.time.Clock()
         clock.tick(120)
     return True
-
 
 
 while True:
@@ -410,11 +406,8 @@ while True:
                 'd': level_map.move_right,
                 'e': player.equip_weapon}
 
-
     # TITLE SCREEN LOOP set 4th argument to False to not get title screen.
-    level_map.level_1 = titlescreen.TitleScreen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT, True)
+    level_map.level_1 = title_screen.title_screen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT, True)
     # WHEN TITLE SCREEN ENDS IT CONTINUES
     if game_loop():
-        DeathScreen.death_screen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT, True)
-
-
+        death_screen.death_screen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT, True)
