@@ -173,6 +173,7 @@ class Player(Actor):
         self.equip_rifle_animation = False
         self.REAL_PLAYER_SIZE = (40, 90)
         self.rect = pygame.Rect((self.x + 25, self.y + 5), self.REAL_PLAYER_SIZE)
+        self.health = 100
 
     def equip_weapon(self):
         """toggles equip/holster image list and starts the animation"""
