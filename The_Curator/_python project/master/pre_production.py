@@ -257,6 +257,7 @@ class PatrollingRaptor(Raptor):
         self.patrol_index = 0
         self.next_waypoint = 1
         self.patrol_speed = patrol_speed
+        self.detector = pygame.draw.circle(WINDOW, (0, 0, 0), (self.x, self.y), 500)
 
     def patrol(self):
         # moves enemy between positions stored in a list
