@@ -215,6 +215,7 @@ class Raptor(Actor):
         self.rect = pygame.Rect(self.x, self.y, load.RAPTOR_SCALE[0], load.RAPTOR_SCALE[1])
         self.attack_distance = 20
         self.raptor_speed = 7
+        self.damage = 1
 
     def update_collider(self, map_level):
         self.rect = pygame.Rect(self.x + map_level.x, self.y + map_level.y, load.RAPTOR_SCALE[0], load.RAPTOR_SCALE[1])
@@ -226,7 +227,7 @@ class Raptor(Actor):
 
         if not self.dead:
             if self.attacking:
-                player.health -= 1
+                player.health -= self.damage
                 self.raptor_speed = 2
 
             # stops divide by zero error
@@ -257,7 +258,10 @@ class PatrollingRaptor(Raptor):
         self.patrol_index = 0
         self.next_waypoint = 1
         self.patrol_speed = patrol_speed
-        self.detector = pygame.draw.circle(WINDOW, (0, 0, 0), (self.x, self.y), 500)
+        self.detection_radius = 150
+        self.detected_player = False
+        self.detected_attack_speed = 12
+        self.damage = 50
 
     def patrol(self):
         # moves enemy between positions stored in a list
@@ -282,6 +286,20 @@ class PatrollingRaptor(Raptor):
         self.x += travel_step_x
         self.y += travel_step_y
 
+    def detect_player(self, map_level):
+        # finds enemy/player direction and adjusts figures for movement
+        difference_x = player.x - self.x - map_level.x
+        difference_y = player.y - self.y - map_level.y
+
+        # stops divide by zero error
+        if math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))) < self.detection_radius:
+            self.raptor_speed = self.detected_attack_speed
+            self.detected_player = True
+            return True
+        else:
+            return False
+
+
 # initiate patrolling enemies list
 raptor_patrol_positions_one = [(500, 200), (500, 1200)]
 raptor_patrol_positions_two = [(1000, 700), (1500, 700), (1500, 100), (1000, 100)]
@@ -301,6 +319,8 @@ def game_loop():
     next_control = None
     spawn_timer = 0
     spawn_time = 150
+    DETECTION_THICKNESS = 4
+    DETECTION_ADJUSTMENT = load.RAPTOR_SCALE[0] / 2
 
     while not player.dead:
         WINDOW.fill((100, 100, 100))
@@ -340,6 +360,10 @@ def game_loop():
         elif not player.equip_rifle_animation:
             player.moving = False
 
+        # check for death
+        if player.health < 0:
+            player.dead = True
+
         # check timer to spawn. Provided level 1 is complete
         if not level_map.level_1:
             if spawn_timer == spawn_time:
@@ -354,15 +378,17 @@ def game_loop():
 
         if level_map.level_1:
             for raptor in patrolling_enemies:
-                raptor.patrol()
+                if not raptor.detected_player:
+                    raptor.patrol()
                 WINDOW.blit(Actor.animator(raptor), (raptor.x + level_map.x, raptor.y + level_map.y))
+                pygame.draw.circle(WINDOW, (0, 0, 0), (int(raptor.x + level_map.x + DETECTION_ADJUSTMENT), int(raptor.y + level_map.y + DETECTION_ADJUSTMENT)), raptor.detection_radius, DETECTION_THICKNESS)
+                if raptor.detect_player(level_map):
+                    raptor.advance(level_map)
 
         for enemy in enemies:
             enemy.update_collider(level_map)
             if enemy.rect.colliderect(player.rect) and not enemy.dead:
-                player.health -= 1
-                if player.health < 0:
-                    player.dead = True
+                player.health -= enemy.damage
 
             enemy.advance(level_map)
             enemy.image = pygame.transform.flip(Actor.animator(enemy), enemy.look_left, False)
