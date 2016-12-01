@@ -28,13 +28,13 @@ class Map:
         self.y += self.speed
 
     def move_down(self):
-        self.y += -self.speed
+        self.y -= self.speed
 
     def move_left(self):
         self.x += self.speed
 
     def move_right(self):
-        self.x += -self.speed
+        self.x -= self.speed
 
     # Displays map onscreen and handles colliders
     def wall_blit(self, tile_x, tile_y):
@@ -106,20 +106,20 @@ class Actor:
         self.health = 100
         self.dead = False
 
-    def animator(asset):
+    def animator(self):
         """Sprite animation function using keyframes"""
         ANIMATION_FRAME_STEP = 10
-        if not asset.moving:
-            asset.animation_frame = 0
+        if not self.moving:
+            self.animation_frame = 0
         else:
-            asset.keyframe += 1
-            if asset.keyframe == ANIMATION_FRAME_STEP:
-                asset.keyframe = 0
-                asset.animation_frame += 1
-            if asset.animation_frame >= asset.image_list.__len__():
-                asset.animation_frame = 1
-        player.check_rifle_equipped(asset)
-        return asset.image_list[asset.animation_frame]
+            self.keyframe += 1
+            if self.keyframe == ANIMATION_FRAME_STEP:
+                self.keyframe = 0
+                self.animation_frame += 1
+            if self.animation_frame >= self.image_list.__len__():
+                self.animation_frame = 1
+        player.check_rifle_equipped()
+        return self.image_list[self.animation_frame]
 
     def standing(self):
         # resets animation fields so that subsequent animation begins from first frame
@@ -197,14 +197,16 @@ class Player(Actor):
         else:
             return False
 
-    def check_rifle_equipped(self, asset):
+    def check_rifle_equipped(self):
         """checks for end of rifle equip animation and sets the subsequent image_list"""
-        if asset.image_list == load.player_rifle_equip and asset.animation_frame == 2:  # final animation frame
-            asset.image_list = load.player_rifle_walking
-            player.equip_rifle_animation = False
-        if asset.image_list == load.player_rifle_holster and asset.animation_frame == 2:  # final animation frame
-            asset.image_list = load.player_walking
-            player.equip_rifle_animation = False
+        # final animation frame
+        if self.animation_frame == 2:
+            if self.image_list == load.player_rifle_equip:
+                self.image_list = load.player_rifle_walking
+                player.equip_rifle_animation = False
+            if self.image_list == load.player_rifle_holster:
+                self.image_list = load.player_walking
+                player.equip_rifle_animation = False
 
 
 class Raptor(Actor):
@@ -380,7 +382,7 @@ def game_loop():
             for raptor in patrolling_enemies:
                 if not raptor.detected_player:
                     raptor.patrol()
-                WINDOW.blit(Actor.animator(raptor), (raptor.x + level_map.x, raptor.y + level_map.y))
+                WINDOW.blit(raptor.animator(), (raptor.x + level_map.x, raptor.y + level_map.y))
                 pygame.draw.circle(WINDOW, (0, 0, 0), (int(raptor.x + level_map.x + DETECTION_ADJUSTMENT), int(raptor.y + level_map.y + DETECTION_ADJUSTMENT)), raptor.detection_radius, DETECTION_THICKNESS)
                 if raptor.detect_player(level_map):
                     raptor.advance(level_map)
@@ -391,12 +393,12 @@ def game_loop():
                 player.health -= enemy.damage
 
             enemy.advance(level_map)
-            enemy.image = pygame.transform.flip(Actor.animator(enemy), enemy.look_left, False)
+            enemy.image = pygame.transform.flip(enemy.animator(), enemy.look_left, False)
             if enemy.health > 0:
                 enemy.health_bar(level_map)
             WINDOW.blit(enemy.image, (enemy.x + level_map.x, enemy.y + level_map.y))
 
-        player.image = Actor.animator(player)
+        player.image = player.animator()
         if player.face_player_towards_cursor(mouse_position[0]):
             WINDOW.blit(pygame.transform.flip(player.image, True, False), (player.x, player.y))
         else:
