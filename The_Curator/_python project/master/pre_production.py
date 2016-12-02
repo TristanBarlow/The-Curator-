@@ -17,9 +17,9 @@ class Map:
         self.y = y
         self.wall_list = []
         self.speed = 4
-        self.level_1 = None
-        self.end_tile_x = -2100
-        self.end_tile_y = 250
+        self.level_1 = True
+        self.end_tile_x = x
+        self.end_tile_y = y
         self.map_array = None
 
     # controls
@@ -85,11 +85,9 @@ class Map:
 
     def level_complete(self):
         """detect end of level"""
-        print self.x, self.y
         # the last square is .x less than -2100, .y more than 250
-        if self.x < self.end_tile_x and self.y > self.end_tile_y:
-            print 'load'
-            self.level_1 = False
+        print self.end_tile_x
+        print self.x
 
 
 class Actor:
