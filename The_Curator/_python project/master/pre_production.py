@@ -18,8 +18,8 @@ class Map:
         self.wall_list = []
         self.speed = 4
         self.level_1 = None
-        self.end_tile_x = x
-        self.end_tile_y = y
+        self.end_tile_x = -2100
+        self.end_tile_y = 250
         self.map_array = None
 
     # controls
@@ -72,9 +72,9 @@ class Map:
     def update_collider(self, last_key):
         if player.rect.collidelistall(self.wall_list):
             if last_key == 'w':
-                self.y += -self.speed
+                self.y -= self.speed
             if last_key == 'a':
-                self.x += -self.speed
+                self.x -= self.speed
             if last_key == 's':
                 self.y += self.speed
             if last_key == 'd':
@@ -84,9 +84,12 @@ class Map:
         self.wall_list = []
 
     def level_complete(self):
-        if self.end_tile_x < player.x < self.end_tile_x + load.tile_size:
-            if self.end_tile_y < player.y < self.end_tile_y + load.tile_size:
-                self.level_1 = False
+        """detect end of level"""
+        print self.x, self.y
+        # the last square is .x less than -2100, .y more than 250
+        if self.x < self.end_tile_x and self.y > self.end_tile_y:
+            print 'load'
+            self.level_1 = False
 
 
 class Actor:
@@ -94,6 +97,8 @@ class Actor:
     def __init__(self, image_list, x, y):
         self.x = x
         self.y = y
+        self.health = 100
+        self.dead = False
 
         # for animation
         self.keyframe = 0
@@ -102,8 +107,6 @@ class Actor:
         self.image = self.image_list[0]
         self.look_left = True
         self.moving = True
-        self.health = 100
-        self.dead = False
 
     def animator(self):
         """Sprite animation function using keyframes"""
@@ -135,6 +138,8 @@ class Bullet:
     def __init__(self, player_position, bullet_direction):
         self.x = player_position[0]
         self.y = player_position[1]
+        self.normalised_x = 0
+        self.normalised_y = 0
         self.direction = bullet_direction
         self.bullet_size = 10
         self.bullet_speed = 100
@@ -143,7 +148,7 @@ class Bullet:
 
     def fire_bullet(self):
         """instantiates bullet list"""
-        bullets.append(Bullet((WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), (normalised_x, normalised_y)))
+        bullets.append(Bullet((WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), (self.normalised_x, self.normalised_y)))
         enemies[enemies.__len__() - 1].image_list = load.raptor_dead_list
 
     def move_bullet(self, i, enemies_list):
@@ -220,6 +225,8 @@ class Raptor(Actor):
         self.attack_distance = 20
         self.raptor_speed = 7
         self.damage = 1
+        self.normalised_x = 0
+        self.normalised_y = 0
 
     def update_collider(self, map_level):
         self.rect = pygame.Rect(self.x + map_level.x, self.y + map_level.y, load.RAPTOR_SCALE[0], load.RAPTOR_SCALE[1])
@@ -237,10 +244,10 @@ class Raptor(Actor):
             # stops divide by zero error
             if math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))) > self.attack_distance:
                 # calculates normal vector using pythagorus formula
-                normalised_x = difference_x / (math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))))
-                normalised_y = difference_y / (math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))))
-                self.x += normalised_x * self.raptor_speed
-                self.y += normalised_y * self.raptor_speed
+                self.normalised_x = difference_x / (math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))))
+                self.normalised_y = difference_y / (math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))))
+                self.x += self.normalised_x * self.raptor_speed
+                self.y += self.normalised_y * self.raptor_speed
             else:
                 # Begin attacking when enemy is close enough
                 self.attacking = True
@@ -307,8 +314,8 @@ class PatrollingRaptor(Raptor):
 # initiate patrolling enemies list
 raptor_patrol_positions_one = [(500, 200), (500, 1200)]
 raptor_patrol_positions_two = [(1000, 700), (1500, 700), (1500, 100), (1000, 100)]
-patrol_speed_one = 200
-patrol_speed_two = 100
+PATROL_ONE_SPEED = 200
+PATROL_TWO_SPEED = 100
 
 print 'wasd controls, e to equip/holster weapon, player faces mouse cursor'
 
@@ -425,10 +432,11 @@ while True:
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
+
     enemies = []
-    patrolling_enemies = [PatrollingRaptor(load.raptor_walking, raptor_patrol_positions_one, patrol_speed_one,
+    patrolling_enemies = [PatrollingRaptor(load.raptor_walking, raptor_patrol_positions_one, PATROL_ONE_SPEED,
                                            raptor_patrol_positions_one[0][0], raptor_patrol_positions_one[0][1]),
-                          PatrollingRaptor(load.raptor_walking, raptor_patrol_positions_two, patrol_speed_two,
+                          PatrollingRaptor(load.raptor_walking, raptor_patrol_positions_two, PATROL_TWO_SPEED,
                                            raptor_patrol_positions_two[0][0], raptor_patrol_positions_two[0][1])]
 
     # create map
