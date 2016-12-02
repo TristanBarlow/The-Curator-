@@ -129,7 +129,11 @@ class Actor:
         self.image = self.image_list[0]
 
     def health_bar(self, level_map):
-        pygame.draw.rect(WINDOW, (255, 0, 0), (self.x + level_map.x, self.y + level_map.y, self.health, 5))
+        if self.health > 100:
+            health_bar_length = self.health / 10.0
+        else:
+            health_bar_length = self.health
+        pygame.draw.rect(WINDOW, (255, 0, 0), (self.x + level_map.x, self.y + level_map.y, health_bar_length, 5))
 
 
 class Bullet:
@@ -315,6 +319,7 @@ class RaptorOverlord(Raptor):
         Raptor.__init__(self, load.overload_walking, 100, 100)
         self.health = 1000
         self.raptor_speed = 2
+        self.damage = 100
 
 
 # initiate patrolling enemies list
@@ -331,7 +336,8 @@ def game_loop():
     key_pressed = None
     next_control = None
     spawn_timer = 0
-    spawn_time = 150
+    spawn_time = 40
+    enemy_counter = 0
     DETECTION_THICKNESS = 4
     DETECTION_ADJUSTMENT = load.RAPTOR_SCALE[0] / 2
 
@@ -381,8 +387,12 @@ def game_loop():
         if not level_map.level_1:
 
             if spawn_timer == spawn_time:
-                enemies.append(
-                    Raptor(load.raptor_running, random.randint(0, WINDOW_WIDTH), random.randint(0, WINDOW_HEIGHT)))
+                enemy_counter += 1
+                if enemy_counter < 10:
+                    enemies.append(Raptor(load.raptor_running, random.randint(0, WINDOW_WIDTH), random.randint(0, WINDOW_HEIGHT)))
+                elif enemy_counter == 10:
+                    enemies.append(RaptorOverlord())
+
                 spawn_timer = 0
             else:
                 spawn_timer += 1
