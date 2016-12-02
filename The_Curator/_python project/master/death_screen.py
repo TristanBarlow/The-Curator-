@@ -46,4 +46,3 @@ def death_screen(window, window_width, window_height, bool):
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-    return True

@@ -46,13 +46,13 @@ def title_screen(window, window_width, window_height, bool):
             if center_width < mouse_x < center_width + label_width and \
                center_height + 100 < mouse_y < center_height + label_height + 100:
 
-                level_1 = False
+                level = 2
                 menu = False
 
             if center_width < mouse_x < center_width + label_width and \
                center_height < mouse_y < center_height + label_height:
 
-                level_1 = True
+                level = 1
                 menu = False
 
         pygame.display.update()
@@ -61,4 +61,4 @@ def title_screen(window, window_width, window_height, bool):
                 pygame.quit()
                 sys.exit()
 
-    return level_1
+    return level
