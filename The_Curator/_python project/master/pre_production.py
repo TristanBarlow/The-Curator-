@@ -20,6 +20,7 @@ class Map:
         self.game_state = 0
         self.end_tile_x = x
         self.end_tile_y = y
+        self.collider_range = 150
 
     # controls
     def move_up(self):
@@ -38,7 +39,10 @@ class Map:
     def wall_blit(self, tile_x, tile_y):
         WINDOW.blit(load.tile_wall, (tile_x + self.x, self.y + tile_y))
         collision = pygame.Rect((tile_x + self.x, self.y + tile_y), (load.tile_size, load.tile_size))
-        self.wall_list.append(collision)
+        if (tile_x + self.x - self.collider_range) < player.x <(tile_x + self.x + self.collider_range)and \
+           (tile_y + self.y - self.collider_range) < player.y < (tile_y + self.y + self.collider_range):
+                collision
+                self.wall_list.append(collision)
 
     def floor_blit(self, tile_x, tile_y):
         WINDOW.blit(load.tile_floor, (tile_x + self.x, tile_y + self.y))
