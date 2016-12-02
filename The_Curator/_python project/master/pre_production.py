@@ -84,11 +84,11 @@ class Map:
         self.wall_list = []
 
     def level_complete(self):
-        """detect end of level"""
-        # the last square is .x less than -2100, .y more than 250
-        print self.end_tile_x
-        print self.x
-
+        if self.end_tile_x < player.x < self.end_tile_x + load.tile_size and\
+                                self.end_tile_y < player.y < self.end_tile_y + load.tile_size:
+                self.level_1 = False
+                self.x = 0
+                self.y = 0
 
 class Actor:
     """Super class for shared fields of player and raptors"""
@@ -414,8 +414,8 @@ def game_loop():
             bullet.update_collider()
             bullet.draw_bullet()
             counter += 1
-
-        level_map.level_complete()
+        if level_map.level_1:
+            level_map.level_complete()
 
         pygame.draw.rect(WINDOW, (255, 0, 0), (0, 20, player.health * 2, 10))
 
