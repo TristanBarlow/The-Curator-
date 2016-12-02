@@ -90,6 +90,7 @@ class Map:
                 self.x = 0
                 self.y = 0
 
+
 class Actor:
     """Super class for shared fields of player and raptors"""
     def __init__(self, image_list, x, y):
@@ -249,7 +250,7 @@ class Raptor(Actor):
             else:
                 # Begin attacking when enemy is close enough
                 self.attacking = True
-                self.image_list = load.raptor_attack
+                self.image_list = load.raptor_attacking
 
             # faces raptor image in direction of movement
             if difference_x < 0:
@@ -307,6 +308,13 @@ class PatrollingRaptor(Raptor):
             return True
         else:
             return False
+
+
+class RaptorOverlord(Raptor):
+    def __init__(self):
+        Raptor.__init__(self, load.overload_walking, 100, 100)
+        self.health = 1000
+        self.raptor_speed = 2
 
 
 # initiate patrolling enemies list
@@ -371,6 +379,7 @@ def game_loop():
 
         # check timer to spawn. Provided level 1 is complete
         if not level_map.level_1:
+
             if spawn_timer == spawn_time:
                 enemies.append(
                     Raptor(load.raptor_running, random.randint(0, WINDOW_WIDTH), random.randint(0, WINDOW_HEIGHT)))

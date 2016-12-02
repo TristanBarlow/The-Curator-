@@ -2,6 +2,7 @@ import pygame
 tile_size = 128
 PLAYER_SCALE = (100, 100)
 RAPTOR_SCALE = (150, 150)
+OVERLORD_SCALE = (500, 500)
 
 wall = pygame.image.load('Tile_Wall.png')
 tile_wall = pygame.transform.scale(wall, (tile_size, tile_size))
@@ -36,5 +37,16 @@ player_rifle_holster = [player_rifle_stand, player_jacket, player_standing]
 
 raptor_walking = [raptor_standing, raptor_walk1, raptor_walk2, raptor_walk3]
 raptor_running = [raptor_standing, raptor_run1, raptor_run2, raptor_run3, raptor_run4, raptor_run5]
-raptor_attack = [raptor_standing, raptor_standing, raptor_attack]
+raptor_attacking = [raptor_standing, raptor_standing, raptor_attack]
 raptor_dead_list = [raptor_dead, raptor_dead]
+
+overlord_standing = pygame.transform.scale(raptor_standing, OVERLORD_SCALE)
+overlord_walk1 = pygame.transform.scale(raptor_walk1, OVERLORD_SCALE)
+overload_walk2 = pygame.transform.scale(raptor_walk2, OVERLORD_SCALE)
+overload_walk3 = pygame.transform.scale(raptor_walk3, OVERLORD_SCALE)
+overlord_attack = pygame.transform.scale(raptor_attack, OVERLORD_SCALE)
+overload_dead = pygame.transform.scale(raptor_dead, OVERLORD_SCALE)
+
+overload_walking = [overlord_standing, overlord_walk1, overload_walk2, overload_walk3]
+overload_attacking = [overlord_standing, overlord_standing, overlord_attack]
+overlord_dead_list = [overload_dead, overload_dead]
