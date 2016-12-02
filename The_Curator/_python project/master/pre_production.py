@@ -21,7 +21,7 @@ class Map:
         self.end_tile_x = x
         self.end_tile_y = y
         self.collider_range = 150
-
+        self.map_array = None
     # controls
     def move_up(self):
         self.y += self.speed
@@ -41,7 +41,6 @@ class Map:
         collision = pygame.Rect((tile_x + self.x, self.y + tile_y), (load.tile_size, load.tile_size))
         if (tile_x + self.x - self.collider_range) < player.x <(tile_x + self.x + self.collider_range)and \
            (tile_y + self.y - self.collider_range) < player.y < (tile_y + self.y + self.collider_range):
-                collision
                 self.wall_list.append(collision)
 
     def floor_blit(self, tile_x, tile_y):
@@ -82,14 +81,15 @@ class Map:
                 self.y += self.speed
             if last_key == 'd':
                 self.x += self.speed
-            else:
-                pass
         self.wall_list = []
 
     def level_complete(self):
+        """
+        If the player is within the co-ords of the end_tile the next level will initiate.
+        """
         if self.end_tile_x < player.x < self.end_tile_x + load.tile_size and\
-                                self.end_tile_y < player.y < self.end_tile_y + load.tile_size:
-                self.game_state = 2
+           self.end_tile_y < player.y < self.end_tile_y + load.tile_size:
+                self.game_state += 1
                 self.x = 0
                 self.y = 0
 
@@ -372,10 +372,6 @@ while True:
         DETECTION_THICKNESS = 4
         DETECTION_ADJUSTMENT = load.RAPTOR_SCALE[0] / 2
         level_map.game_state = title_screen.title_screen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT, True)
-
-
-
-
 
     WINDOW.fill((100, 100, 100))
     for event in pygame.event.get():
