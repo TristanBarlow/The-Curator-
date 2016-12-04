@@ -4,11 +4,14 @@ from pygame.locals import *
 pygame.init()
 
 
-def death_screen(window, window_width, window_height, bool):
+def death_screen(window, window_width, window_height):
+    """Provides a visual for when you die and an option to restart."""
+    # load image
     title_image = pygame.image.load("game_over.png")
     title_image_scaled = pygame.transform.scale(title_image, (window_width, window_height))
-    menu = bool
+    menu = True
     while menu is True:
+        # To create the text.
         window.fill((142, 125, 75))
         window.blit(title_image_scaled, (0, 0))
         text_color = (255, 0, 0)
@@ -35,6 +38,7 @@ def death_screen(window, window_width, window_height, bool):
 
             window.blit(label, (center_width, center_height))
 
+        # if restart is clicked it will break the loop.
         if pygame.event.get(MOUSEBUTTONDOWN):
             if center_width < mouse_x < center_width + label_width and \
                center_height < mouse_y < center_height + label_height:

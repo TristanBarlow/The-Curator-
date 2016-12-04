@@ -4,11 +4,16 @@ from pygame.locals import *
 pygame.init()
 
 
-def title_screen(window, window_width, window_height, bool):
+def title_screen(window, window_width, window_height):
+    """ Provides a separate loop for the title screen.
+        Returns a 1 or 2 to represent the level choice of the player.
+    """
+    # loading image and transforming it.
     title_image = pygame.image.load("TitleScreen.png")
     title_image_scaled = pygame.transform.scale(title_image, (window_width, window_height))
-    menu = bool
+    menu = True
     while menu is True:
+        # To create the text.
         window.fill((142, 125, 75))
         window.blit(title_image_scaled, (0, 0))
         text_color = (255, 255, 255)
@@ -27,6 +32,8 @@ def title_screen(window, window_width, window_height, bool):
         mouse_pos = pygame.mouse.get_pos()
         # Split the date into x and y coordinates
         mouse_x, mouse_y = mouse_pos
+
+        # checks whether the cursor is over the choices for level one or two
         if center_width < mouse_x < center_width + label_width and \
            center_height < mouse_y < center_height + label_height:
 
@@ -38,7 +45,6 @@ def title_screen(window, window_width, window_height, bool):
            center_height + 100 < mouse_y < center_height + label_height + 100:
 
             window.blit(label_mouse_over_2, (center_width, center_height + 100))
-
         else:
             window.blit(label_2, (center_width, center_height + 100))
 
