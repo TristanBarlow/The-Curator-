@@ -1,4 +1,4 @@
-import pygame, sys, time, random, math, map, load, title_screen, death_screen
+import pygame, sys, time, random, math, map, load, title_screen, death_screen, winsound
 from pygame.locals import *
 
 pygame.init()
@@ -99,6 +99,7 @@ class Map:
             self.game_state += 1
             self.x = 0
             self.y = 0
+            winsound.PlaySound('teleport.wav', winsound.SND_FILENAME)
 
 
 class Actor:
@@ -392,6 +393,7 @@ while True:
         DETECTION_THICKNESS = 4
         DETECTION_ADJUSTMENT = load.RAPTOR_SCALE[0] / 2
         level_map.game_state = title_screen.title_screen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT)
+        winsound.PlaySound('teleport.wav', winsound.SND_FILENAME)
 
     WINDOW.fill((100, 100, 100))
     for event in pygame.event.get():
