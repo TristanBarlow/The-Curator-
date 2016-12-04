@@ -40,6 +40,7 @@ class Map:
           of the player."""
         WINDOW.blit(load.tile_wall, (tile_x + self.x, self.y + tile_y))
         collision = pygame.Rect((tile_x + self.x, self.y + tile_y), (load.tile_size, load.tile_size))
+        # Checks whether the current wall is within collider_range, if it is adds the wall_rect to the wall_list.
         if (tile_x + self.x - self.collider_range) < player.x < (tile_x + self.x + self.collider_range) and \
                                 (tile_y + self.y - self.collider_range) < player.y < (
                                 tile_y + self.y + self.collider_range):
@@ -347,8 +348,11 @@ class RaptorOverlord(Raptor):
     def __init__(self):
         Raptor.__init__(self, load.overload_walking, 100, 100)
         self.health = 1000
-        self.raptor_speed = 4
+        self.raptor_speed = 5
         self.damage = 200
+
+    def update_collider(self, map_level):
+        self.rect = pygame.Rect(self.x + map_level.x, self.y + map_level.y, load.OVERLORD_SCALE[0], load.OVERLORD_SCALE[1])
 
 
 # initiate patrolling enemies list
@@ -506,6 +510,7 @@ while True:
     if level_map.game_state == 1:
         level_map.level_complete()
     if player.health < 0:
+        load.death.play()
         title_screen.screen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT,"game_over.png" )
         level_map.game_state = 0
         enemies = []
