@@ -392,7 +392,7 @@ while True:
         enemy_counter = 0
         DETECTION_THICKNESS = 4
         DETECTION_ADJUSTMENT = load.RAPTOR_SCALE[0] / 2
-        level_map.game_state = title_screen.title_screen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT)
+        level_map.game_state = title_screen.screen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT, "TitleScreen.png")
         winsound.PlaySound('teleport.wav', winsound.SND_FILENAME)
 
     WINDOW.fill((100, 100, 100))
@@ -495,7 +495,7 @@ while True:
     if level_map.game_state == 1:
         level_map.level_complete()
     if player.health < 0:
-        death_screen.death_screen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT)
+        title_screen.screen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT,"game_over.png" )
         level_map.game_state = 0
         enemies = []
 
