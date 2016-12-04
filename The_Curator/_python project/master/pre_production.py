@@ -99,8 +99,7 @@ class Map:
             self.game_state += 1
             self.x = 0
             self.y = 0
-            pygame.mixer.Sound('teleport.wav')
-            pygame.mixer.Sound.play
+            
 
 
 class Actor:
