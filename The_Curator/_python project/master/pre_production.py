@@ -217,6 +217,7 @@ class Player(Actor):
                 self.image_list = load.player_rifle_equip
             elif self.image_list == load.player_rifle_walking:
                 self.image_list = load.player_rifle_holster
+            load.equip.play()
 
     def face_player_towards_cursor(self, mouse_x):
         """checks mouse position against player position and faces player towards cursor"""
