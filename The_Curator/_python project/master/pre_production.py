@@ -1,4 +1,4 @@
-import pygame, sys, time, random, math, map, load, title_screen, death_screen, winsound
+import pygame, sys, time, random, math, map, load, title_screen, death_screen, winsound, pygame.mixer
 from pygame.locals import *
 
 pygame.init()
@@ -99,7 +99,8 @@ class Map:
             self.game_state += 1
             self.x = 0
             self.y = 0
-            winsound.PlaySound('teleport.wav', winsound.SND_FILENAME)
+            pygame.mixer.Sound('teleport.wav')
+            pygame.mixer.Sound.play
 
 
 class Actor:
@@ -182,11 +183,13 @@ class Bullet:
         for enemy in enemies_list:
             if self.rect.colliderect(enemy.rect):
                 enemy.health -= 25
-                if enemy.health < 0:
+                if enemy.health < 0 and not enemy.been_killed:
                     enemy.image_list = load.raptor_dead_list
                     enemy.moving = False
                     enemy.health = 0
                     enemy.dead = True
+                    load.raptor_death.play()
+                    enemy.been_killed = True
 
     def update_collider(self):
         self.rect = pygame.Rect(self.x, self.y, self.bullet_size, self.bullet_size)
@@ -251,6 +254,7 @@ class Raptor(Actor):
         self.damage = 1
         self.normalised_x = 0
         self.normalised_y = 0
+        self.been_killed = False
 
     def update_collider(self, map_level):
         self.rect = pygame.Rect(self.x + map_level.x, self.y + map_level.y, load.RAPTOR_SCALE[0], load.RAPTOR_SCALE[1])
@@ -388,12 +392,13 @@ while True:
         key_pressed = None
         next_control = None
         spawn_timer = 0
-        spawn_time = 40
+        spawn_time = 100
         enemy_counter = 0
         DETECTION_THICKNESS = 4
         DETECTION_ADJUSTMENT = load.RAPTOR_SCALE[0] / 2
         level_map.game_state = title_screen.screen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT, "TitleScreen.png")
-        winsound.PlaySound('teleport.wav', winsound.SND_FILENAME)
+        load.teleport.play()
+        overlord = False
 
     WINDOW.fill((100, 100, 100))
     for event in pygame.event.get():
@@ -414,6 +419,7 @@ while True:
             normalised_y = mouse_delta_y / (math.sqrt((math.pow(mouse_delta_x, 2) + math.pow(mouse_delta_y, 2))))
 
             bullets.append(Bullet((player.x, player.y), (normalised_x, normalised_y)))
+            load.gunshot.play()
 
         # controls
         if event.type == pygame.KEYDOWN:
@@ -444,8 +450,11 @@ while True:
             if enemy_counter < 10:
                 enemies.append(
                     Raptor(load.raptor_running, random.randint(0, WINDOW_WIDTH), random.randint(0, WINDOW_HEIGHT)))
+                load.raptor_alive.play()
             elif enemy_counter == 10:
+                overlord = True
                 enemies.append(RaptorOverlord())
+
 
             spawn_timer = 0
         else:
@@ -455,7 +464,8 @@ while True:
     if level_map.game_state == 1 or level_map.game_state == 2:
         level_map.update_collider(key_pressed)
         level_map.update_map()
-
+    if overlord:
+        load.overload_noise.play()
     # Provided on level 1 it will spawn patrolling raptors
     if level_map.game_state == 1:
         for raptor in patrolling_enemies:

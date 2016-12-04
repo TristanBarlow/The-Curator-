@@ -1,4 +1,5 @@
-import pygame, wave, winsound
+import pygame, wave, winsound, pygame.mixer
+pygame.init()
 tile_size = 128
 PLAYER_SCALE = (100, 100)
 RAPTOR_SCALE = (150, 150)
@@ -54,3 +55,9 @@ overload_walking = [overlord_standing, overlord_walk1, overload_walk2, overload_
 overload_attacking = [overlord_standing, overlord_standing, overlord_attack]
 overlord_dead_list = [overload_dead, overload_dead]
 
+#audio
+teleport = pygame.mixer.Sound('teleport.wav')
+gunshot = pygame.mixer.Sound('gunshot.wav')
+raptor_death = pygame.mixer.Sound('rapgrowldead.wav')
+raptor_alive =pygame.mixer.Sound('rapalive.wav')
+overload_noise= pygame.mixer.Sound('overlordroar.wav')
