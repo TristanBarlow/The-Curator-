@@ -99,7 +99,8 @@ class Map:
             self.game_state += 1
             self.x = 0
             self.y = 0
-            
+            # Used winsound instead, so it stays on the line until sound complete
+            winsound.PlaySound('teleport.wav', winsound.SND_FILENAME)
 
 
 class Actor:
@@ -396,7 +397,7 @@ while True:
         DETECTION_THICKNESS = 4
         DETECTION_ADJUSTMENT = load.RAPTOR_SCALE[0] / 2
         level_map.game_state = title_screen.screen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT, "TitleScreen.png")
-        load.teleport.play()
+        winsound.PlaySound('teleport.wav', winsound.SND_FILENAME)
         overlord = False
 
     WINDOW.fill((100, 100, 100))
