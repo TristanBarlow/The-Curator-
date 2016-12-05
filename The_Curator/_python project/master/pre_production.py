@@ -1,4 +1,4 @@
-import pygame, sys, time, random, math, map, load, title_screen, death_screen, winsound, pygame.mixer
+import pygame, sys, time, random, math, map, load, title_screen, winsound, pygame.mixer
 from pygame.locals import *
 
 pygame.init()
