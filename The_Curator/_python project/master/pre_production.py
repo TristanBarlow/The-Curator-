@@ -15,7 +15,7 @@ class Map:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.wall_list = []
+        self.collider_wall_list = []
         self.speed = 4
         self.game_state = 0
         self.end_tile_x = x
@@ -44,7 +44,7 @@ class Map:
         if (tile_x + self.x - self.collider_range) < player.x < (tile_x + self.x + self.collider_range) and \
                                 (tile_y + self.y - self.collider_range) < player.y < (
                                 tile_y + self.y + self.collider_range):
-            self.wall_list.append(collision)
+            self.collider_wall_list.append(collision)
 
     def floor_blit(self, tile_x, tile_y):
         """Simply blits the floor tile when called."""
@@ -82,7 +82,7 @@ class Map:
     def update_collider(self, last_key):
         """Cycles through the list of rects and if they collide will reverse the last key pressed and then clears the
         wall list afterwards."""
-        if player.rect.collidelistall(self.wall_list):
+        if player.rect.collidelistall(self.collider_wall_list):
             if last_key == 'w':
                 self.y -= self.speed
             if last_key == 'a':
@@ -91,7 +91,7 @@ class Map:
                 self.y += self.speed
             if last_key == 'd':
                 self.x += self.speed
-        self.wall_list = []
+        self.collider_wall_list = []
 
     def level_complete(self):
         """If the player is within the co-ords of the end_tile the next level will initiate."""
@@ -347,8 +347,8 @@ class RaptorOverlord(Raptor):
     """Subclass for the unstoppable Raptor Overlord, GOOD LUCK!"""
     def __init__(self):
         Raptor.__init__(self, load.overload_walking, 100, 100)
-        self.health = 1000
-        self.raptor_speed = 5
+        self.health = 5000
+        self.raptor_speed = 6
         self.damage = 200
 
     def update_collider(self, map_level):
@@ -370,13 +370,15 @@ while True:
 
     # Initialises and displays titlescreen
     if level_map.game_state == 0:
+        # Create list of enemies
         enemies = []
+        # Create list of patrolling raptor instances
         patrolling_enemies = [PatrollingRaptor(load.raptor_walking, raptor_patrol_positions_one, PATROL_ONE_SPEED,
                                                raptor_patrol_positions_one[0][0], raptor_patrol_positions_one[0][1]),
                               PatrollingRaptor(load.raptor_walking, raptor_patrol_positions_two, PATROL_TWO_SPEED,
                                                raptor_patrol_positions_two[0][0], raptor_patrol_positions_two[0][1])]
 
-        # create map
+        # create map at the start point for level one.
         level_map = Map(200, -470)
 
         # create player
@@ -384,6 +386,7 @@ while True:
 
         # creates bullet list
         bullets = []
+
         # Controls dictionary
         controls = {'w': level_map.move_up,
                     's': level_map.move_down,
@@ -401,6 +404,8 @@ while True:
         enemy_counter = 0
         DETECTION_THICKNESS = 4
         DETECTION_ADJUSTMENT = load.RAPTOR_SCALE[0] / 2
+        patrol_rap_growl = True
+        # Sends to file title_screen, which has separate event loop( reduces the size of the main loop )
         level_map.game_state = title_screen.screen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT, "TitleScreen.png")
         winsound.PlaySound('teleport.wav', winsound.SND_FILENAME)
         overlord = False
@@ -411,10 +416,12 @@ while True:
             pygame.quit()
             sys.exit()
 
+        # Keeps mouse_position updated
         if event.type == pygame.MOUSEMOTION:
             pygame.mouse.set_cursor(*pygame.cursors.broken_x)
             mouse_position = pygame.mouse.get_pos()
 
+        # Creates bullet instance, travelling in direction bewtween
         if event.type == pygame.MOUSEBUTTONDOWN and player.image_list == load.player_rifle_walking:
             mouse_delta_x = mouse_position[0] - player.x
             mouse_delta_y = mouse_position[1] - player.y
@@ -477,11 +484,11 @@ while True:
             if not raptor.detected_player:
                 raptor.patrol()
             WINDOW.blit(raptor.animator(), (raptor.x + level_map.x, raptor.y + level_map.y))
-            pygame.draw.circle(WINDOW, (0, 0, 0), (
-                int(raptor.x + level_map.x + DETECTION_ADJUSTMENT), int(raptor.y + level_map.y + DETECTION_ADJUSTMENT)),
-                               raptor.detection_radius, DETECTION_THICKNESS)
             if raptor.detect_player(level_map):
                 raptor.advance(level_map)
+                if patrol_rap_growl:
+                    load.raptor_alive.play()
+                    patrol_rap_growl = False
 
     for enemy in enemies:
         enemy.update_collider(level_map)
