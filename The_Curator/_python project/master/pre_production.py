@@ -1,4 +1,12 @@
-import pygame, sys, time, random, math, map, load, title_screen, winsound, pygame.mixer
+import pygame
+import sys
+import random
+import map
+import load
+import math
+import title_screen
+import winsound
+import pygame.mixer
 from pygame.locals import *
 
 pygame.init()
@@ -40,6 +48,7 @@ class Map:
           of the player."""
         WINDOW.blit(load.tile_wall, (tile_x + self.x, self.y + tile_y))
         collision = pygame.Rect((tile_x + self.x, self.y + tile_y), (load.tile_size, load.tile_size))
+
         # Checks whether the current wall is within collider_range, if it is adds the wall_rect to the wall_list.
         if (tile_x + self.x - self.collider_range) < player.x < (tile_x + self.x + self.collider_range) and \
                                 (tile_y + self.y - self.collider_range) < player.y < (
@@ -100,6 +109,7 @@ class Map:
             self.game_state += 1
             self.x = 0
             self.y = 0
+
             # Used winsound instead, so it stays on the line until sound complete
             winsound.PlaySound('teleport.wav', winsound.SND_FILENAME)
 
@@ -142,13 +152,13 @@ class Actor:
         self.animation_frame = 1
         self.image = self.image_list[0]
 
-    def health_bar(self, level_map):
+    def health_bar(self, map_level):
         """Displays health bar dependent on health, (not player health bar)"""
         if self.health > 100:
             health_bar_length = self.health / 10.0
         else:
             health_bar_length = self.health
-        pygame.draw.rect(WINDOW, (255, 0, 0), (self.x + level_map.x, self.y + level_map.y, health_bar_length, 5))
+        pygame.draw.rect(WINDOW, (255, 0, 0), (self.x + map_level.x, self.y + map_level.y, health_bar_length, 5))
 
 
 class Bullet:
@@ -207,6 +217,7 @@ class Player(Actor):
         self.equip_rifle_animation = False
         self.REAL_PLAYER_SIZE = (40, 90)
         self.rect = pygame.Rect((self.x + 25, self.y + 5), self.REAL_PLAYER_SIZE)
+
         # Re initialises health so we can give the player more health for testing.
         self.health = 100
 
@@ -230,6 +241,7 @@ class Player(Actor):
 
     def check_rifle_equipped(self):
         """checks for end of rifle equip animation and sets the subsequent image_list"""
+
         # final animation frame
         if self.animation_frame == 2:
             if self.image_list == load.player_rifle_equip:
@@ -274,12 +286,14 @@ class Raptor(Actor):
 
             # stops divide by zero error
             if math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))) > self.attack_distance:
-                # calculates normal vector using pythagorus formula
+
+                # calculates normal vector using pythagoras formula
                 self.normalised_x = difference_x / (math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))))
                 self.normalised_y = difference_y / (math.sqrt((math.pow(difference_x, 2) + math.pow(difference_y, 2))))
                 self.x += self.normalised_x * self.raptor_speed
                 self.y += self.normalised_y * self.raptor_speed
             else:
+
                 # Begin attacking when enemy is close enough
                 self.attacking = True
                 self.image_list = load.raptor_attacking
@@ -370,8 +384,10 @@ while True:
 
     # Initialises and displays titlescreen
     if level_map.game_state == 0:
+
         # Create list of enemies
         enemies = []
+
         # Create list of patrolling raptor instances
         patrolling_enemies = [PatrollingRaptor(load.raptor_walking, raptor_patrol_positions_one, PATROL_ONE_SPEED,
                                                raptor_patrol_positions_one[0][0], raptor_patrol_positions_one[0][1]),
@@ -395,7 +411,7 @@ while True:
                     'e': player.equip_weapon,
                     'q': player.refill_health}
 
-        # Initialises certain variables required in the game loop.
+        # Initialises variables required in the game loop.
         mouse_position = (0, 0)
         key_pressed = None
         next_control = None
@@ -405,10 +421,14 @@ while True:
         DETECTION_THICKNESS = 4
         DETECTION_ADJUSTMENT = load.RAPTOR_SCALE[0] / 2
         patrol_rap_growl = True
+
+        # Bool for if overlord is currently in game
+        overlord = False
+
         # Sends to file title_screen, which has separate event loop( reduces the size of the main loop )
         level_map.game_state = title_screen.screen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT, "TitleScreen.png")
         winsound.PlaySound('teleport.wav', winsound.SND_FILENAME)
-        overlord = False
+
 
     WINDOW.fill((100, 100, 100))
     for event in pygame.event.get():
@@ -421,7 +441,7 @@ while True:
             pygame.mouse.set_cursor(*pygame.cursors.broken_x)
             mouse_position = pygame.mouse.get_pos()
 
-        # Creates bullet instance, travelling in direction bewtween
+        # Creates bullet instance, travelling in direction towards the mouse away from the player
         if event.type == pygame.MOUSEBUTTONDOWN and player.image_list == load.player_rifle_walking:
             mouse_delta_x = mouse_position[0] - player.x
             mouse_delta_y = mouse_position[1] - player.y
@@ -430,6 +450,7 @@ while True:
             normalised_x = mouse_delta_x / (math.sqrt((math.pow(mouse_delta_x, 2) + math.pow(mouse_delta_y, 2))))
             normalised_y = mouse_delta_y / (math.sqrt((math.pow(mouse_delta_x, 2) + math.pow(mouse_delta_y, 2))))
 
+            # Adds instance of bullet to list
             bullets.append(Bullet((player.x, player.y), (normalised_x, normalised_y)))
             load.gunshot.play()
 
@@ -439,6 +460,7 @@ while True:
             if key_pressed in controls:
                 player.moving = True
                 next_control = controls[key_pressed]
+
         elif event.type == pygame.KEYUP:
             next_control = None
 
@@ -454,19 +476,19 @@ while True:
     if player.health < 0:
         player.dead = True
 
-    # check timer to spawn. Provided level 1 is complete
+    # check timer to spawn. Provided game state is level 2. Spawns overlord after 10 enemies have been spawned.
     if level_map.game_state == 2:
-
         if spawn_timer == spawn_time:
             enemy_counter += 1
             if enemy_counter < 10:
                 enemies.append(
                     Raptor(load.raptor_running, random.randint(0, WINDOW_WIDTH), random.randint(0, WINDOW_HEIGHT)))
                 load.raptor_alive.play()
+
+            # Spawns overlord after 10 enemies have been spawned.
             elif enemy_counter == 10:
                 overlord = True
                 enemies.append(RaptorOverlord())
-
 
             spawn_timer = 0
         else:
@@ -478,12 +500,16 @@ while True:
         level_map.update_map()
     if overlord:
         load.overload_noise.play()
-    # Provided on level 1 it will spawn patrolling raptors
+
     if level_map.game_state == 1:
         for raptor in patrolling_enemies:
+
+            # Patrols raptor when player is not detected.
             if not raptor.detected_player:
                 raptor.patrol()
             WINDOW.blit(raptor.animator(), (raptor.x + level_map.x, raptor.y + level_map.y))
+
+            # If detected raptor will move toward player.
             if raptor.detect_player(level_map):
                 raptor.advance(level_map)
                 if patrol_rap_growl:
@@ -491,10 +517,13 @@ while True:
                     patrol_rap_growl = False
 
     for enemy in enemies:
+
+        # Updates enemy colliders and then it checks if next to play and deals damage if true.
         enemy.update_collider(level_map)
         if enemy.rect.colliderect(player.rect) and not enemy.dead:
             player.health -= enemy.damage
 
+        # Moves enemies advance towards player and and if their health is < 0 removes health bar.
         enemy.advance(level_map)
         enemy.image = pygame.transform.flip(enemy.animator(), enemy.look_left, False)
         if enemy.health > 0:
@@ -514,18 +543,20 @@ while True:
         bullet.update_collider()
         bullet.draw_bullet()
         counter += 1
+
+    # Checks if the player has reached the end of level 1
     if level_map.game_state == 1:
         level_map.level_complete()
+
+    # Checks if player is dead, if so plays death music and shows deathscreen.
     if player.health < 0:
         load.death.play()
         title_screen.screen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT,"game_over.png" )
         level_map.game_state = 0
-        enemies = []
 
+    # draws player health bar
     pygame.draw.rect(WINDOW, (255, 0, 0), (0, 20, player.health * 2, 10))
 
     pygame.display.update()
     clock = pygame.time.Clock()
     clock.tick(120)
-
-    # TITLE SCREEN LOOP set 4th argument to False to not get title screen.
