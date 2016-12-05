@@ -429,7 +429,6 @@ while True:
         level_map.game_state = title_screen.screen(WINDOW, WINDOW_WIDTH, WINDOW_HEIGHT, "TitleScreen.png")
         winsound.PlaySound('teleport.wav', winsound.SND_FILENAME)
 
-
     WINDOW.fill((100, 100, 100))
     for event in pygame.event.get():
         if event.type == QUIT:
